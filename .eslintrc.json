@@ -12,11 +12,6 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "settings": {
-    "react": {
-      "version": "none"
-    }
-  },
   "ignorePatterns": ["rollup.config.js"],
   "rules": {
     "import/no-unresolved": 0,

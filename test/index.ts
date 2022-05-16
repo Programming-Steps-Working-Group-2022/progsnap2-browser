@@ -1,15 +1,7 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import server from '../src/server';
+import * as server from '../src/server';
 import { ProgSnap2Event } from '../src/types';
-
-const API = suite('exports');
-
-API('should export an object', () => {
-  assert.type(server, 'object');
-});
-
-API.run();
 
 // ---
 

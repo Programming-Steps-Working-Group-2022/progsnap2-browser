@@ -39,6 +39,24 @@ interface BaseEventFields extends PrimitiveFields {
   LoggingErrorID?: ID;
 }
 
+export interface EventFilterOptions {
+  CourseID?: PrimitiveValues[];
+  CourseSectionID?: PrimitiveValues[];
+  TermID?: PrimitiveValues[];
+  AssignmentID?: PrimitiveValues[];
+  ProblemID?: PrimitiveValues[];
+  SubjectID?: PrimitiveValues[];
+}
+
+export const EVENT_FILTER_FIELDS: (keyof EventFilterOptions)[] = [
+  'CourseID',
+  'CourseSectionID',
+  'TermID',
+  'AssignmentID',
+  'ProblemID',
+  'SubjectID',
+];
+
 export interface SessionEvent extends BaseEventFields {
   EventType: 'Session.Start' | 'Session.End';
   SessionID: ID;
