@@ -81,150 +81,27 @@ const EVENT_FILTER_FIELDS = [
     'SubjectID',
 ];
 
-const filterSelection = (select, filters) => {
-    const onSelect = (fieldName, element) => {
-        select(fieldName, element.options[element.selectedIndex].value);
-    };
-    return filters === undefined
-        ? $ `<div class="loader">Loading filter options...</div>`
-        : $ `
-        <ul class="filters">
-          ${EVENT_FILTER_FIELDS.map(f => {
-            const options = filters[f];
-            return options !== undefined
-                ? $ `
-                  <li>
-                    ${f}
-                    <select
-                      @change=${(e) => onSelect(f, e.target)}
-                    >
-                      ${options.map(o => $ `<option>${o}</option>`)}
-                    </select>
-                  </li>
-                `
-                : undefined;
-        })}
-        </ul>
-      `;
-};
-
-const modifierSelection = (select, modifiers) => {
-    const selectCheckbox = (name) => {
-        select({ ...modifiers, ...Object.fromEntries([[name, !modifiers[name]]]) });
-    };
-    const selectNumber = (name, input) => {
-        select({ ...modifiers, ...Object.fromEntries([[name, input.value]]) });
-    };
-    return $ `
-    <div class="modifiers">
-      <label>
-        <input
-          type="checkbox"
-          ?checked=${modifiers.codeStateOnly}
-          @change=${() => selectCheckbox('codeStateOnly')}
-        />
-        Only timestamp & code state
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          ?checked=${modifiers.collapseSteps}
-          @change=${() => selectCheckbox('collapseSteps')}
-        />
-        Collapse steps where less than
-      </label>
-      <input
-        type="number"
-        value=${modifiers.maxLatency}
-        @change=${(e) => selectNumber('maxLatency', e.target)}
-      />
-      seconds latency between and less than
-      <input
-        type="number"
-        value=${modifiers.maxCharacters}
-        @change=${(e) => selectNumber('maxCharacters', e.target)}
-      />
-      characters changed at a step.
-    </div>
-  `;
-};
-
-const timeAndCodeFields = (fields) => {
-    const select = [undefined, undefined];
-    if (fields.includes('ClientTimestamp')) {
-        select[0] = 'ClientTimestamp';
-    }
-    else if (fields.includes('ServerTimestamp')) {
-        select[0] = 'ServerTimestamp';
-    }
-    if (fields.includes('X-CodeState')) {
-        select[1] = 'X-CodeState';
-    }
-    else if (fields.includes('CodeStateID')) {
-        select[1] = 'CodeStateID';
-    }
-    return select;
-};
-const checkLatency = (d0, d1, max) => {
-    if (d0 === undefined || d1 === undefined) {
-        return true;
-    }
-    return ((new Date(`${d1}`).getTime() - new Date(`${d0}`).getTime()) / 1000 >= max);
-};
-// const checkCharacters =
-const collapseEvents = (events, modifiers, timeAndCode) => {
-    const select = [];
-    let last;
-    for (let i = 0; i < events.length; i += 1) {
-        const e = events[i];
-        if (last === undefined ||
-            checkLatency(last[timeAndCode[0] || ''], e[timeAndCode[0] || ''], modifiers.maxLatency)) {
-            select.push(e);
-        }
-        last = e;
-    }
-    return select;
-};
-const eventTimeline = (events, modifiers) => {
-    if (!events.length) {
-        return $ `<div class="error">No events available</div>`;
-    }
-    const allFields = Object.keys(events[0]);
-    const timeAndCode = timeAndCodeFields(allFields);
-    const fields = modifiers.codeStateOnly ? timeAndCode : allFields;
-    const visible = modifiers.collapseSteps
-        ? collapseEvents(events, modifiers, timeAndCode)
-        : events;
-    return $ `
-    <table class="events">
-      <thead>
-        <tr>
-          ${fields.map(f => $ `<th>${f}</th>`)}
-        </tr>
-      </thead>
-      <tbody>
-        ${visible.map(e => $ `
-            <tr>
-              ${fields.map(f => $ `<td><pre>${e[f || '']}</pre></td>`)}
-            </tr>
-          `)}
-      </tbody>
-    </table>
-  `;
-};
-
 let EventsBrowser = class EventsBrowser extends s {
-    filtersUrl = undefined;
-    eventsUrl = undefined;
-    filters = undefined;
-    selection = undefined;
-    events = [];
-    modifiers = {
-        codeStateOnly: false,
-        collapseSteps: false,
-        maxLatency: 10,
-        maxCharacters: 10,
-    };
+    constructor() {
+        super(...arguments);
+        this.filtersUrl = undefined;
+        this.eventsUrl = undefined;
+        this.filters = undefined;
+        this.selection = undefined;
+        this.events = [];
+    }
+    render() {
+        if (!this.filtersUrl || !this.eventsUrl) {
+            return $ `<div>Element misses required attributes</div>`;
+        }
+        return $ `
+      <event-filters
+        .filters=${this.filters}
+        @select-filter=${this.selectFilter}
+      ></event-filters>
+      <event-timeline .events=${this.events}></event-timeline>
+    `;
+    }
     async connectedCallback() {
         super.connectedCallback();
         if (this.filtersUrl) {
@@ -237,10 +114,10 @@ let EventsBrowser = class EventsBrowser extends s {
             this.fetchEvents();
         }
     }
-    async makeSelection(fieldName, value) {
+    async selectFilter(event) {
         this.selection = {
             ...this.selection,
-            ...Object.fromEntries([[fieldName, value]]),
+            ...Object.fromEntries([[event.detail.field, event.detail.value]]),
         };
         this.fetchEvents();
     }
@@ -252,54 +129,8 @@ let EventsBrowser = class EventsBrowser extends s {
                 body: JSON.stringify(this.selection),
             });
             this.events = await response.json();
-            this.requestUpdate();
         }
     }
-    setModifiers(modifiers) {
-        this.modifiers = modifiers;
-        this.requestUpdate();
-    }
-    render() {
-        if (!this.filtersUrl || !this.eventsUrl) {
-            return $ `
-        <div class="error">
-          Missing required attributes: filtersUrl & eventsUrl
-        </div>
-      `;
-        }
-        return $ `
-      ${filterSelection(this.makeSelection.bind(this), this.filters)}
-      ${modifierSelection(this.setModifiers.bind(this), this.modifiers)}
-      ${eventTimeline(this.events, this.modifiers)}
-    `;
-    }
-    static styles = r$2 `
-    ul.filters {
-      margin: 0 0 5px 0;
-      padding: 5px;
-      border-bottom: 1px solid grey;
-      background-color: lightgrey;
-    }
-    ul.filters li {
-      display: inline;
-    }
-    .modifiers input[type='number'] {
-      width: 3em;
-    }
-    table.events {
-      width: 100%;
-      max-height: 600px;
-      border: 2px solid grey;
-      overflow: auto;
-    }
-    table.events th {
-      position: sticky;
-      top: 0;
-    }
-    table.events td {
-      border: 1px solid lightgray;
-    }
-  `;
 };
 __decorate([
     e()
@@ -316,12 +147,247 @@ __decorate([
 __decorate([
     t()
 ], EventsBrowser.prototype, "events", void 0);
-__decorate([
-    t()
-], EventsBrowser.prototype, "modifiers", void 0);
 EventsBrowser = __decorate([
     n$1('events-browser')
 ], EventsBrowser);
 var EventsBrowser$1 = EventsBrowser;
 
-export { EventsBrowser$1 as default };
+const getSelectElementValue = (e) => e.options[e.selectedIndex].value;
+
+let EventFilters = class EventFilters extends s {
+    constructor() {
+        super(...arguments);
+        this.filters = undefined;
+    }
+    render() {
+        return this.filters === undefined
+            ? $ `<div>Loading filter options...</div>`
+            : $ `
+          <ul class="filters">
+            ${EVENT_FILTER_FIELDS.map(f => {
+                const options = (this.filters || {})[f];
+                return options !== undefined
+                    ? $ `
+                    <li>
+                      ${f}
+                      <select
+                        @change=${(e) => this.select(f, e.target)}
+                      >
+                        ${options.map(o => $ `<option>${o}</option>`)}
+                      </select>
+                    </li>
+                  `
+                    : undefined;
+            })}
+          </ul>
+        `;
+    }
+    select(field, select) {
+        this.dispatchEvent(new CustomEvent('select-filter', {
+            detail: { field, value: getSelectElementValue(select) },
+        }));
+    }
+};
+EventFilters.styles = r$2 `
+    ul {
+      margin: 0 0 5px 0;
+      padding: 5px;
+      border-bottom: 1px solid grey;
+      background-color: lightgrey;
+    }
+    ul li {
+      display: inline;
+    }
+  `;
+__decorate([
+    e({ type: Object, reflect: true })
+], EventFilters.prototype, "filters", void 0);
+EventFilters = __decorate([
+    n$1('event-filters')
+], EventFilters);
+var EventFilters$1 = EventFilters;
+
+const pickExistingFrom = (all, pick) => pick
+    .map(search => {
+    for (let i = 0; i < search.length; i += 1) {
+        if (all.includes(search[i])) {
+            return search[i];
+        }
+    }
+    return undefined;
+})
+    .filter((s) => s !== undefined);
+/*
+export const collapseEvents = (
+  events: ProgSnap2Event[],
+  modifiers: Modifiers,
+  timeAndCode: TimeAndCode,
+) => {
+  const select: ProgSnap2Event[] = [];
+  let last: ProgSnap2Event | undefined;
+  for (let i = 0; i < events.length; i += 1) {
+    const e: ProgSnap2Event = events[i];
+    if (
+      last === undefined ||
+      checkLatency(
+        last[timeAndCode[0] || ''],
+        e[timeAndCode[0] || ''],
+        modifiers.maxLatency,
+      )
+    ) {
+      select.push(e);
+    }
+    last = e;
+  }
+  return select;
+};
+*/
+
+let EventTimeline = class EventTimeline extends s {
+    constructor() {
+        super(...arguments);
+        this.events = [];
+        this.displayFields = undefined;
+    }
+    render() {
+        if (!this.events.length) {
+            return $ `<div>No events available</div>`;
+        }
+        const allFields = Object.keys(this.events[0]);
+        const fields = this.displayFields || allFields;
+        return $ `
+      <field-filters
+        .fields=${allFields}
+        .display=${this.displayFields}
+        @select-display=${this.selectDisplay}
+      ></field-filters>
+      <table>
+        <thead>
+          <tr>
+            ${fields.map(f => $ `<th @click=${() => this.focusDisplay(f)}>${f}</th>`)}
+          </tr>
+        </thead>
+        <tbody>
+          ${this.events.map(e => $ `
+              <tr>
+                ${fields.map(f => $ `<td><pre>${e[f || '']}</pre></td>`)}
+              </tr>
+            `)}
+        </tbody>
+      </table>
+    `;
+    }
+    selectDisplay(event) {
+        this.displayFields = event.detail.fields;
+    }
+    focusDisplay(field) {
+        const fields = this.events.length > 0 ? Object.keys(this.events[0]) : [];
+        this.displayFields = pickExistingFrom(fields, [
+            ['EventID'],
+            ['ClientTimestamp', 'ServerTimestamp'],
+            [field],
+        ]);
+    }
+};
+EventTimeline.styles = r$2 `
+    table {
+      max-width: 100%;
+      max-height: 600px;
+      border: 2px solid grey;
+      overflow: auto;
+    }
+    table th {
+      position: sticky;
+      top: 0;
+      background-color: white;
+      text-align: left;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    table td {
+      border: 1px solid lightgray;
+    }
+  `;
+__decorate([
+    e({ type: Array })
+], EventTimeline.prototype, "events", void 0);
+__decorate([
+    t()
+], EventTimeline.prototype, "displayFields", void 0);
+EventTimeline = __decorate([
+    n$1('event-timeline')
+], EventTimeline);
+var EventTimeline$1 = EventTimeline;
+
+let FieldFilters = class FieldFilters extends s {
+    constructor() {
+        super(...arguments);
+        this.fields = undefined;
+        this.display = undefined;
+    }
+    render() {
+        if (this.fields === undefined || this.display === undefined) {
+            return $ ``;
+        }
+        return $ `
+      <ul>
+        <li>
+          <button @click=${() => this.updateDisplay(undefined)}>Reset</button>
+        </li>
+        ${this.fields.map(f => $ `
+            <li>
+              <label>
+                <input
+                  type="checkbox"
+                  ?checked=${this.display?.includes(f)}
+                  @change=${() => this.toggleDisplay(f)}
+                />
+                ${f}
+              </label>
+            </li>
+          `)}
+      </ul>
+    `;
+    }
+    toggleDisplay(field) {
+        if (this.display?.includes(field)) {
+            this.updateDisplay(this.display?.filter(f => f !== field));
+        }
+        else {
+            this.updateDisplay(this.fields?.filter(f => f === field || this.display?.includes(f)));
+        }
+    }
+    updateDisplay(fields) {
+        this.dispatchEvent(new CustomEvent('select-display', {
+            detail: { fields },
+        }));
+    }
+};
+FieldFilters.styles = r$2 `
+    ul {
+      margin: 0;
+      padding: 0;
+    }
+    ul li {
+      display: inline;
+    }
+  `;
+__decorate([
+    e({ type: Array })
+], FieldFilters.prototype, "fields", void 0);
+__decorate([
+    e({ type: Array })
+], FieldFilters.prototype, "display", void 0);
+FieldFilters = __decorate([
+    n$1('field-filters')
+], FieldFilters);
+var FieldFilters$1 = FieldFilters;
+
+var index = {
+    EventsBrowser: EventsBrowser$1,
+    EventFilters: EventFilters$1,
+    EventTimeline: EventTimeline$1,
+    FieldFilters: FieldFilters$1,
+};
+
+export { index as default };
