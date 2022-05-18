@@ -44,7 +44,7 @@ class EventFilters extends LitElement {
 
   static styles = css`
     ul {
-      margin: 0 0 5px 0;
+      margin: 0;
       padding: 5px;
       border-bottom: 1px solid grey;
       background-color: lightgrey;

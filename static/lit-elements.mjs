@@ -190,7 +190,7 @@ let EventFilters = class EventFilters extends s {
 };
 EventFilters.styles = r$2 `
     ul {
-      margin: 0 0 5px 0;
+      margin: 0;
       padding: 5px;
       border-bottom: 1px solid grey;
       background-color: lightgrey;
@@ -293,7 +293,6 @@ EventTimeline.styles = r$2 `
     table {
       max-width: 100%;
       max-height: 600px;
-      border: 2px solid grey;
       overflow: auto;
     }
     table th {
@@ -339,7 +338,7 @@ let FieldFilters = class FieldFilters extends s {
               <label>
                 <input
                   type="checkbox"
-                  ?checked=${this.display?.includes(f)}
+                  .checked=${(this.display || []).includes(f)}
                   @change=${() => this.toggleDisplay(f)}
                 />
                 ${f}
@@ -366,7 +365,8 @@ let FieldFilters = class FieldFilters extends s {
 FieldFilters.styles = r$2 `
     ul {
       margin: 0;
-      padding: 0;
+      padding: 5px;
+      border-bottom: 1px solid grey;
     }
     ul li {
       display: inline;

@@ -25,7 +25,7 @@ class FieldFilters extends LitElement {
               <label>
                 <input
                   type="checkbox"
-                  ?checked=${this.display?.includes(f)}
+                  .checked=${(this.display || []).includes(f)}
                   @change=${() => this.toggleDisplay(f)}
                 />
                 ${f}
@@ -58,7 +58,8 @@ class FieldFilters extends LitElement {
   static styles = css`
     ul {
       margin: 0;
-      padding: 0;
+      padding: 5px;
+      border-bottom: 1px solid grey;
     }
     ul li {
       display: inline;

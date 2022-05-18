@@ -63,7 +63,6 @@ class EventTimeline extends LitElement {
     table {
       max-width: 100%;
       max-height: 600px;
-      border: 2px solid grey;
       overflow: auto;
     }
     table th {
