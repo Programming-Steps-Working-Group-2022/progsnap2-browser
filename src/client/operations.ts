@@ -1,4 +1,5 @@
 import { PrimitiveValues, ProgSnap2Event } from '../types';
+import { FieldRule } from './FieldRules';
 
 export const pickExistingFrom = (all: string[], pick: string[][]): string[] =>
   pick
@@ -12,41 +13,36 @@ export const pickExistingFrom = (all: string[], pick: string[][]): string[] =>
     })
     .filter((s): s is string => s !== undefined);
 
-export const checkLatency = (
+export const getLatency = (
   d0: PrimitiveValues,
   d1: PrimitiveValues,
-  max: number,
-): boolean => {
-  if (d0 === undefined || d1 === undefined) {
-    return true;
-  }
-  return (
-    (new Date(`${d1}`).getTime() - new Date(`${d0}`).getTime()) / 1000 >= max
-  );
+): number => {
+  return new Date(`${d1}`).getTime() - new Date(`${d0}`).getTime();
 };
 
-/*
-export const collapseEvents = (
+export const collapseRows = (
   events: ProgSnap2Event[],
-  modifiers: Modifiers,
-  timeAndCode: TimeAndCode,
-) => {
-  const select: ProgSnap2Event[] = [];
-  let last: ProgSnap2Event | undefined;
-  for (let i = 0; i < events.length; i += 1) {
-    const e: ProgSnap2Event = events[i];
-    if (
-      last === undefined ||
-      checkLatency(
-        last[timeAndCode[0] || ''],
-        e[timeAndCode[0] || ''],
-        modifiers.maxLatency,
-      )
-    ) {
-      select.push(e);
-    }
-    last = e;
+  rules: FieldRule[],
+): ProgSnap2Event[] => {
+  const cleanRules = rules.filter(r => r.collapse !== 'none');
+  if (cleanRules.length === 0) {
+    return events;
   }
-  return select;
+  const last = events.length - 1;
+  return events.filter((e, i) =>
+    cleanRules.some(r => {
+      const v = e[r.name];
+      switch (r.collapse) {
+        case 'time':
+          // TODO check this...
+          return i === last || getLatency(v, events[i + 1][r.name]);
+        case 'unchanged':
+          return i === 0 || v !== events[i - 1][r.name];
+        case 'empty':
+          return v !== undefined && v !== '';
+        default:
+          return true;
+      }
+    }),
+  );
 };
-*/

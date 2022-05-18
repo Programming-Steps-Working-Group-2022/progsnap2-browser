@@ -217,36 +217,37 @@ const pickExistingFrom = (all, pick) => pick
     return undefined;
 })
     .filter((s) => s !== undefined);
-/*
-export const collapseEvents = (
-  events: ProgSnap2Event[],
-  modifiers: Modifiers,
-  timeAndCode: TimeAndCode,
-) => {
-  const select: ProgSnap2Event[] = [];
-  let last: ProgSnap2Event | undefined;
-  for (let i = 0; i < events.length; i += 1) {
-    const e: ProgSnap2Event = events[i];
-    if (
-      last === undefined ||
-      checkLatency(
-        last[timeAndCode[0] || ''],
-        e[timeAndCode[0] || ''],
-        modifiers.maxLatency,
-      )
-    ) {
-      select.push(e);
-    }
-    last = e;
-  }
-  return select;
+const getLatency = (d0, d1) => {
+    return new Date(`${d1}`).getTime() - new Date(`${d0}`).getTime();
 };
-*/
+const collapseRows = (events, rules) => {
+    console.log(rules);
+    const cleanRules = rules.filter(r => r.collapse !== 'none');
+    if (cleanRules.length === 0) {
+        return events;
+    }
+    const last = events.length - 1;
+    return events.filter((e, i) => cleanRules.some(r => {
+        const v = e[r.name];
+        console.log(r, v);
+        switch (r.collapse) {
+            case 'time':
+                return i === last || getLatency(v, events[i + 1][r.name]);
+            case 'unchanged':
+                return i === 0 || v !== events[i - 1][r.name];
+            case 'empty':
+                return v !== undefined && v !== '';
+            default:
+                return true;
+        }
+    }));
+};
 
 let EventTimeline = class EventTimeline extends s {
     constructor() {
         super(...arguments);
         this.events = [];
+        this.fieldRules = [];
         this.displayFields = undefined;
     }
     render() {
@@ -254,22 +255,40 @@ let EventTimeline = class EventTimeline extends s {
             return $ `<div>No events available</div>`;
         }
         const allFields = Object.keys(this.events[0]);
+        const ruleFields = this.fieldRules.map(r => r.name);
         const fields = this.displayFields || allFields;
         return $ `
+      <field-rules
+        .rules=${this.fieldRules}
+        @delete-rule=${(e) => this.deleteFieldRule(e.detail.field)}
+        @edit-rule=${(e) => this.editFieldRule(e.detail.rule)}
+      ></field-rules>
       <field-filters
         .fields=${allFields}
         .display=${this.displayFields}
-        @select-display=${this.selectDisplay}
+        @select-display=${(e) => this.selectDisplay(e.detail.fields)}
       ></field-filters>
       <table>
         <thead>
           <tr>
-            ${fields.map(f => $ `<th @click=${() => this.focusDisplay(f)}>${f}</th>`)}
+            <th>Annotate</th>
+            ${fields.map(f => $ `
+                <th>
+                  <strong @click=${() => this.focusDisplay(f)}>${f}</strong>
+                  <button
+                    class=${ruleFields.includes(f) ? 'active' : ''}
+                    @click=${() => this.addFieldRule(f)}
+                  >
+                    ⚙
+                  </button>
+                </th>
+              `)}
           </tr>
         </thead>
         <tbody>
-          ${this.events.map(e => $ `
+          ${collapseRows(this.events, this.fieldRules).map(e => $ `
               <tr>
+                <td><textarea rows="1"></textarea></td>
                 ${fields.map(f => $ `<td><pre>${e[f || '']}</pre></td>`)}
               </tr>
             `)}
@@ -277,8 +296,16 @@ let EventTimeline = class EventTimeline extends s {
       </table>
     `;
     }
-    selectDisplay(event) {
-        this.displayFields = event.detail.fields;
+    addFieldRule(field) {
+        if (!this.fieldRules.map(r => r.name).includes(field)) {
+            this.fieldRules = [...this.fieldRules, { name: field, collapse: 'none' }];
+        }
+    }
+    deleteFieldRule(field) {
+        this.fieldRules = this.fieldRules.filter(r => r.name !== field);
+    }
+    editFieldRule(rule) {
+        this.fieldRules = this.fieldRules.map(r => r.name === rule.name ? rule : r);
     }
     focusDisplay(field) {
         const fields = this.events.length > 0 ? Object.keys(this.events[0]) : [];
@@ -287,6 +314,9 @@ let EventTimeline = class EventTimeline extends s {
             ['ClientTimestamp', 'ServerTimestamp'],
             [field],
         ]);
+    }
+    selectDisplay(fields) {
+        this.displayFields = fields;
     }
 };
 EventTimeline.styles = r$2 `
@@ -300,11 +330,28 @@ EventTimeline.styles = r$2 `
       top: 0;
       background-color: white;
       text-align: left;
+    }
+    table th strong {
       text-decoration: underline;
       cursor: pointer;
     }
+    table th button {
+      font-weight: bold;
+    }
+    table th button.active {
+      color: darkcyan;
+    }
     table td {
       border: 1px solid lightgray;
+      vertical-align: top;
+    }
+    table td textarea {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+    }
+    table td pre {
+      margin: 0;
     }
   `;
 __decorate([
@@ -312,11 +359,84 @@ __decorate([
 ], EventTimeline.prototype, "events", void 0);
 __decorate([
     t()
+], EventTimeline.prototype, "fieldRules", void 0);
+__decorate([
+    t()
 ], EventTimeline.prototype, "displayFields", void 0);
 EventTimeline = __decorate([
     n$1('event-timeline')
 ], EventTimeline);
 var EventTimeline$1 = EventTimeline;
+
+const COLLAPSE_MODES = [
+    { id: 'none', label: 'No rule' },
+    { id: 'time', label: 'Collapse while step latency below threshold' },
+    { id: 'unchanged', label: 'Collapse while unchanged' },
+    { id: 'empty', label: 'Collapse while empty' },
+];
+const TIME_FIELDS = ['ServerTimestamp', 'ClientTimestamp'];
+let FieldRules = class FieldRules extends s {
+    constructor() {
+        super(...arguments);
+        this.rules = [];
+    }
+    render() {
+        if (this.rules.length === 0) {
+            return $ ``;
+        }
+        return $ `
+      <ul>
+        ${this.rules.map(r => $ `
+            <li>
+              <button @click=${() => this.deleteRule(r.name)}>x</button>
+              ${r.name}
+              <select
+                @change=${(e) => this.editRule({
+            ...r,
+            collapse: getSelectElementValue(e.target),
+        })}
+              >
+                ${(TIME_FIELDS.includes(r.name)
+            ? COLLAPSE_MODES
+            : COLLAPSE_MODES.filter(m => m.id !== 'time')).map(mode => $ `
+                    <option
+                      value=${mode.id}
+                      .selected=${r.collapse === mode.id}
+                    >
+                      ${mode.label}
+                    </option>
+                  `)}
+              </select>
+            </li>
+          `)}
+      </ul>
+    `;
+    }
+    deleteRule(field) {
+        this.dispatchEvent(new CustomEvent('delete-rule', { detail: { field } }));
+    }
+    editRule(rule) {
+        this.dispatchEvent(new CustomEvent('edit-rule', { detail: { rule } }));
+    }
+};
+FieldRules.styles = r$2 `
+    ul {
+      margin: 0;
+      padding: 5px;
+      background-color: lightcyan;
+      border-bottom: 1px solid grey;
+    }
+    ul li {
+      margin-bottom: 5px;
+    }
+  `;
+__decorate([
+    e({ type: Array })
+], FieldRules.prototype, "rules", void 0);
+FieldRules = __decorate([
+    n$1('field-rules')
+], FieldRules);
+var FieldRules$1 = FieldRules;
 
 let FieldFilters = class FieldFilters extends s {
     constructor() {
@@ -331,7 +451,9 @@ let FieldFilters = class FieldFilters extends s {
         return $ `
       <ul>
         <li>
-          <button @click=${() => this.updateDisplay(undefined)}>Reset</button>
+          <button @click=${() => this.updateDisplay(undefined)}>
+            Show all
+          </button>
         </li>
         ${this.fields.map(f => $ `
             <li>
@@ -357,9 +479,7 @@ let FieldFilters = class FieldFilters extends s {
         }
     }
     updateDisplay(fields) {
-        this.dispatchEvent(new CustomEvent('select-display', {
-            detail: { fields },
-        }));
+        this.dispatchEvent(new CustomEvent('select-display', { detail: { fields } }));
     }
 };
 FieldFilters.styles = r$2 `
@@ -387,6 +507,7 @@ var index = {
     EventsBrowser: EventsBrowser$1,
     EventFilters: EventFilters$1,
     EventTimeline: EventTimeline$1,
+    FieldRules: FieldRules$1,
     FieldFilters: FieldFilters$1,
 };
 

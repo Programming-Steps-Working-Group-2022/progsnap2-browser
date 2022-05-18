@@ -17,7 +17,9 @@ class FieldFilters extends LitElement {
     return html`
       <ul>
         <li>
-          <button @click=${() => this.updateDisplay(undefined)}>Reset</button>
+          <button @click=${() => this.updateDisplay(undefined)}>
+            Show all
+          </button>
         </li>
         ${this.fields.map(
           f => html`
@@ -49,9 +51,7 @@ class FieldFilters extends LitElement {
 
   updateDisplay(fields?: string[]): void {
     this.dispatchEvent(
-      new CustomEvent('select-display', {
-        detail: { fields },
-      }),
+      new CustomEvent('select-display', { detail: { fields } }),
     );
   }
 
