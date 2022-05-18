@@ -39,7 +39,7 @@ class EventTimeline extends LitElement {
       <table>
         <thead>
           <tr>
-            <th>Annotate</th>
+            <!--<th>Annotate</th>-->
             ${fields.map(
               f => html`
                 <th>
@@ -59,7 +59,7 @@ class EventTimeline extends LitElement {
           ${collapseRows(this.events, this.fieldRules).map(
             e => html`
               <tr>
-                <td><textarea rows="1"></textarea></td>
+                <!--<td><textarea rows="1"></textarea></td>-->
                 ${fields.map(f => html`<td><pre>${e[f || '']}</pre></td>`)}
               </tr>
             `,
@@ -109,6 +109,7 @@ class EventTimeline extends LitElement {
       top: 0;
       background-color: white;
       text-align: left;
+      white-space: nowrap;
     }
     table th strong {
       text-decoration: underline;
@@ -131,6 +132,8 @@ class EventTimeline extends LitElement {
     }
     table td pre {
       margin: 0;
+      max-width: 50em;
+      word-wrap: pre-wrap;
     }
   `;
 }

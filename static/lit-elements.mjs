@@ -117,7 +117,7 @@ let EventsBrowser = class EventsBrowser extends s {
     async selectFilter(event) {
         this.selection = {
             ...this.selection,
-            ...Object.fromEntries([[event.detail.field, event.detail.value]]),
+            ...Object.fromEntries([[event.detail.field, [event.detail.value]]]),
         };
         this.fetchEvents();
     }
@@ -221,7 +221,6 @@ const getLatency = (d0, d1) => {
     return new Date(`${d1}`).getTime() - new Date(`${d0}`).getTime();
 };
 const collapseRows = (events, rules) => {
-    console.log(rules);
     const cleanRules = rules.filter(r => r.collapse !== 'none');
     if (cleanRules.length === 0) {
         return events;
@@ -229,9 +228,9 @@ const collapseRows = (events, rules) => {
     const last = events.length - 1;
     return events.filter((e, i) => cleanRules.some(r => {
         const v = e[r.name];
-        console.log(r, v);
         switch (r.collapse) {
             case 'time':
+                // TODO check this...
                 return i === last || getLatency(v, events[i + 1][r.name]);
             case 'unchanged':
                 return i === 0 || v !== events[i - 1][r.name];
@@ -271,7 +270,7 @@ let EventTimeline = class EventTimeline extends s {
       <table>
         <thead>
           <tr>
-            <th>Annotate</th>
+            <!--<th>Annotate</th>-->
             ${fields.map(f => $ `
                 <th>
                   <strong @click=${() => this.focusDisplay(f)}>${f}</strong>
@@ -288,7 +287,7 @@ let EventTimeline = class EventTimeline extends s {
         <tbody>
           ${collapseRows(this.events, this.fieldRules).map(e => $ `
               <tr>
-                <td><textarea rows="1"></textarea></td>
+                <!--<td><textarea rows="1"></textarea></td>-->
                 ${fields.map(f => $ `<td><pre>${e[f || '']}</pre></td>`)}
               </tr>
             `)}
@@ -330,6 +329,7 @@ EventTimeline.styles = r$2 `
       top: 0;
       background-color: white;
       text-align: left;
+      white-space: nowrap;
     }
     table th strong {
       text-decoration: underline;
@@ -352,6 +352,8 @@ EventTimeline.styles = r$2 `
     }
     table td pre {
       margin: 0;
+      max-width: 50em;
+      word-wrap: pre-wrap;
     }
   `;
 __decorate([

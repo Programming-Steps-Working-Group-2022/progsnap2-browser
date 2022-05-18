@@ -23,16 +23,15 @@ export const calculateEventFilterOptions = (
     ]),
   );
 
-export const matchEvent = (
-  event: ProgSnap2Event,
-  filters: EventFilterOptions,
-) =>
-  EVENT_FILTER_FIELDS.every(
-    key =>
-      filters[key] === undefined || (filters[key] || []).includes(event[key]),
-  );
-
 export const filterEvents = (
   data: ProgSnap2Event[],
   filters: EventFilterOptions,
-) => data.filter(event => matchEvent(event, filters));
+) => {
+  const check = EVENT_FILTER_FIELDS.map(field => ({
+    field,
+    accept: filters[field] || [],
+  })).filter(({ accept }) => accept.length > 0);
+  return data.filter(event =>
+    check.every(({ field, accept }) => accept.includes(event[field])),
+  );
+};

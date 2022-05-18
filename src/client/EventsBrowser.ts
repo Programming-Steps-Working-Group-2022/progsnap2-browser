@@ -55,7 +55,7 @@ class EventsBrowser extends LitElement {
   async selectFilter(event: CustomEvent): Promise<void> {
     this.selection = {
       ...this.selection,
-      ...Object.fromEntries([[event.detail.field, event.detail.value]]),
+      ...Object.fromEntries([[event.detail.field, [event.detail.value]]]),
     };
     this.fetchEvents();
   }
