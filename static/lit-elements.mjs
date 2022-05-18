@@ -99,7 +99,7 @@ let EventsBrowser = class EventsBrowser extends s {
         .filters=${this.filters}
         @select-filter=${this.selectFilter}
       ></event-filters>
-      <event-timeline .events=${this.events}></event-timeline>
+      <events-view .events=${this.events}></events-view>
     `;
     }
     async connectedCallback() {
@@ -197,6 +197,7 @@ EventFilters.styles = r$2 `
     }
     ul li {
       display: inline;
+      white-space: nowrap;
     }
   `;
 __decorate([
@@ -220,6 +221,7 @@ const pickExistingFrom = (all, pick) => pick
 const getLatency = (d0, d1) => {
     return new Date(`${d1}`).getTime() - new Date(`${d0}`).getTime();
 };
+const looselyEqual = (v1, v2) => v1 === v2 || v1?.toString().trim() === v2?.toString().trim();
 const collapseRows = (events, rules) => {
     const cleanRules = rules.filter(r => r.collapse !== 'none');
     if (cleanRules.length === 0) {
@@ -233,7 +235,7 @@ const collapseRows = (events, rules) => {
                 // TODO check this...
                 return i === last || getLatency(v, events[i + 1][r.name]);
             case 'unchanged':
-                return i === 0 || v !== events[i - 1][r.name];
+                return i === 0 || !looselyEqual(v, events[i - 1][r.name]);
             case 'empty':
                 return v !== undefined && v !== '';
             default:
@@ -242,21 +244,30 @@ const collapseRows = (events, rules) => {
     }));
 };
 
-let EventTimeline = class EventTimeline extends s {
+let EventsView = class EventsView extends s {
     constructor() {
         super(...arguments);
         this.events = [];
         this.fieldRules = [];
         this.displayFields = undefined;
+        this.playbackMode = false;
     }
     render() {
         if (!this.events.length) {
             return $ `<div>No events available</div>`;
         }
         const allFields = Object.keys(this.events[0]);
-        const ruleFields = this.fieldRules.map(r => r.name);
         const fields = this.displayFields || allFields;
+        const events = collapseRows(this.events, this.fieldRules);
         return $ `
+      <div class="playback-mode">
+        <button .disabled=${!this.playbackMode} @click=${this.togglePlayback}>
+          Table
+        </button>
+        <button .disabled=${this.playbackMode} @click=${this.togglePlayback}>
+          Play
+        </button>
+      </div>
       <field-rules
         .rules=${this.fieldRules}
         @delete-rule=${(e) => this.deleteFieldRule(e.detail.field)}
@@ -267,33 +278,24 @@ let EventTimeline = class EventTimeline extends s {
         .display=${this.displayFields}
         @select-display=${(e) => this.selectDisplay(e.detail.fields)}
       ></field-filters>
-      <table>
-        <thead>
-          <tr>
-            <!--<th>Annotate</th>-->
-            ${fields.map(f => $ `
-                <th>
-                  <strong @click=${() => this.focusDisplay(f)}>${f}</strong>
-                  <button
-                    class=${ruleFields.includes(f) ? 'active' : ''}
-                    @click=${() => this.addFieldRule(f)}
-                  >
-                    ⚙
-                  </button>
-                </th>
-              `)}
-          </tr>
-        </thead>
-        <tbody>
-          ${collapseRows(this.events, this.fieldRules).map(e => $ `
-              <tr>
-                <!--<td><textarea rows="1"></textarea></td>-->
-                ${fields.map(f => $ `<td><pre>${e[f || '']}</pre></td>`)}
-              </tr>
-            `)}
-        </tbody>
-      </table>
+      <div class="view">
+        ${this.playbackMode
+            ? $ `<events-playback
+              .fields=${fields}
+              .events=${events}
+            ></events-playback>`
+            : $ `<events-table
+              .fields=${fields}
+              .ruleFields=${this.fieldRules.map(r => r.name)}
+              .events=${events}
+              @focus-display=${(e) => this.focusDisplay(e.detail.field)}
+              @add-rule=${(e) => this.addFieldRule(e.detail.field)}
+            ></events-table>`}
+      </div>
     `;
+    }
+    togglePlayback() {
+        this.playbackMode = !this.playbackMode;
     }
     addFieldRule(field) {
         if (!this.fieldRules.map(r => r.name).includes(field)) {
@@ -318,57 +320,34 @@ let EventTimeline = class EventTimeline extends s {
         this.displayFields = fields;
     }
 };
-EventTimeline.styles = r$2 `
-    table {
-      max-width: 100%;
-      max-height: 600px;
-      overflow: auto;
+EventsView.styles = r$2 `
+    .playback-mode {
+      position: absolute;
+      z-index: 10;
+      top: 5px;
+      right: 5px;
     }
-    table th {
-      position: sticky;
-      top: 0;
-      background-color: white;
-      text-align: left;
-      white-space: nowrap;
-    }
-    table th strong {
-      text-decoration: underline;
-      cursor: pointer;
-    }
-    table th button {
-      font-weight: bold;
-    }
-    table th button.active {
-      color: darkcyan;
-    }
-    table td {
-      border: 1px solid lightgray;
-      vertical-align: top;
-    }
-    table td textarea {
-      width: 100%;
-      height: 100%;
-      box-sizing: border-box;
-    }
-    table td pre {
-      margin: 0;
-      max-width: 50em;
-      word-wrap: pre-wrap;
+    .view {
+      position: relative;
+      height: 800px;
     }
   `;
 __decorate([
     e({ type: Array })
-], EventTimeline.prototype, "events", void 0);
+], EventsView.prototype, "events", void 0);
 __decorate([
     t()
-], EventTimeline.prototype, "fieldRules", void 0);
+], EventsView.prototype, "fieldRules", void 0);
 __decorate([
     t()
-], EventTimeline.prototype, "displayFields", void 0);
-EventTimeline = __decorate([
-    n$1('event-timeline')
-], EventTimeline);
-var EventTimeline$1 = EventTimeline;
+], EventsView.prototype, "displayFields", void 0);
+__decorate([
+    t()
+], EventsView.prototype, "playbackMode", void 0);
+EventsView = __decorate([
+    n$1('events-view')
+], EventsView);
+var EventsView$1 = EventsView;
 
 const COLLAPSE_MODES = [
     { id: 'none', label: 'No rule' },
@@ -492,6 +471,7 @@ FieldFilters.styles = r$2 `
     }
     ul li {
       display: inline;
+      white-space: nowrap;
     }
   `;
 __decorate([
@@ -505,12 +485,240 @@ FieldFilters = __decorate([
 ], FieldFilters);
 var FieldFilters$1 = FieldFilters;
 
+let EventsTable = class EventsTable extends s {
+    constructor() {
+        super(...arguments);
+        this.fields = [];
+        this.ruleFields = [];
+        this.events = [];
+    }
+    render() {
+        return $ `
+      <div class="wrap">
+        <table>
+          <thead>
+            <tr>
+              ${this.fields.map(field => $ `
+                  <th>
+                    <strong
+                      @click=${() => this.dispatchEvent(new CustomEvent('focus-display', {
+            detail: { field },
+        }))}
+                      >${field}</strong
+                    >
+                    <button
+                      class=${this.ruleFields.includes(field) ? 'active' : ''}
+                      @click=${() => this.dispatchEvent(new CustomEvent('add-rule', { detail: { field } }))}
+                    >
+                      ⚙
+                    </button>
+                  </th>
+                `)}
+            </tr>
+          </thead>
+          <tbody>
+            ${this.events.map(e => $ `
+                <tr>
+                  ${this.fields.map(f => $ `<td><pre>${e[f || '']}</pre></td>`)}
+                </tr>
+              `)}
+          </tbody>
+        </table>
+      </div>
+    `;
+    }
+};
+EventsTable.styles = r$2 `
+    .wrap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 5px;
+      overflow: auto;
+    }
+    table {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table th {
+      position: sticky;
+      top: 0;
+      background-color: white;
+      text-align: left;
+      white-space: nowrap;
+    }
+    table th strong {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    table th button {
+      font-weight: bold;
+    }
+    table th button.active {
+      color: darkcyan;
+    }
+    table td {
+      border: 1px solid lightgray;
+      vertical-align: top;
+    }
+    table td pre {
+      margin: 0;
+      max-width: 50em;
+      white-space: pre-wrap;
+    }
+  `;
+__decorate([
+    e({ type: Array })
+], EventsTable.prototype, "fields", void 0);
+__decorate([
+    e({ type: Array })
+], EventsTable.prototype, "ruleFields", void 0);
+__decorate([
+    e({ type: Array })
+], EventsTable.prototype, "events", void 0);
+EventsTable = __decorate([
+    n$1('events-table')
+], EventsTable);
+var EventsTable$1 = EventsTable;
+
+let EventsPlayback = class EventsPlayback extends s {
+    constructor() {
+        super(...arguments);
+        this.fields = [];
+        this.events = [];
+        this.index = 0;
+        this.interval = undefined;
+    }
+    connectedCallback() {
+        super.connectedCallback();
+        document.addEventListener('keydown', e => this.keyboard(e));
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        document.removeEventListener('keydown', e => this.keyboard(e));
+    }
+    render() {
+        const last = this.events.length - 1;
+        const event = this.events[this.index];
+        if (event === undefined) {
+            return $ `<p>Index out of bounds</p>`;
+        }
+        return $ `
+      <div class="wrap">
+        <div class="controls">
+          <button
+            .disabled=${this.index < 1}
+            @click=${() => this.setIndex(this.index - 1)}
+          >
+            ◀
+          </button>
+          <button @click=${() => this.toggleInterval()}>
+            ${this.interval !== undefined ? 'Stop' : 'Play'}
+          </button>
+          <button
+            .disabled=${this.index >= last}
+            @click=${() => this.setIndex(this.index + 1)}
+          >
+            ▶
+          </button>
+        </div>
+        <table>
+          <tbody>
+            ${this.fields.map(field => $ `
+                <tr>
+                  <td>${field}</td>
+                  <td><pre>${event[field]}</pre></td>
+                </tr>
+              `)}
+          </tbody>
+        </table>
+      </div>
+    `;
+    }
+    setIndex(index) {
+        if (this.interval !== undefined) {
+            this.stopPlayback();
+        }
+        this.index = index;
+    }
+    toggleInterval() {
+        if (this.interval !== undefined) {
+            this.stopPlayback();
+        }
+        else {
+            this.interval = window.setInterval(() => {
+                if (this.index < this.events.length - 1) {
+                    this.index += 1;
+                }
+                else {
+                    this.stopPlayback();
+                }
+            }, 400);
+        }
+    }
+    stopPlayback() {
+        clearInterval(this.interval);
+        this.interval = undefined;
+    }
+    keyboard(event) {
+        console.log(event, this);
+        switch (event.key) {
+            case 'ArrowLeft':
+                this.setIndex(this.index - 1);
+                break;
+            case 'ArrowRight':
+                this.setIndex(this.index + 1);
+                break;
+            case ' ':
+                this.toggleInterval();
+                break;
+        }
+    }
+};
+EventsPlayback.styles = r$2 `
+    .controls {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      width: 200px;
+      margin-left: -50px;
+    }
+    .controls button {
+      font-size: 200%;
+    }
+    table td {
+      vertical-align: top;
+    }
+  `;
+__decorate([
+    e({ type: Array })
+], EventsPlayback.prototype, "fields", void 0);
+__decorate([
+    e({ type: Array })
+], EventsPlayback.prototype, "events", void 0);
+__decorate([
+    t()
+], EventsPlayback.prototype, "index", void 0);
+__decorate([
+    t()
+], EventsPlayback.prototype, "interval", void 0);
+EventsPlayback = __decorate([
+    n$1('events-playback')
+], EventsPlayback);
+var EventsPlayback$1 = EventsPlayback;
+
 var index = {
     EventsBrowser: EventsBrowser$1,
     EventFilters: EventFilters$1,
-    EventTimeline: EventTimeline$1,
+    EventsView: EventsView$1,
     FieldRules: FieldRules$1,
     FieldFilters: FieldFilters$1,
+    EventsTable: EventsTable$1,
+    EventsPlayback: EventsPlayback$1,
 };
 
 export { index as default };

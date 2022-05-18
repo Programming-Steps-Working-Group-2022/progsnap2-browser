@@ -1,13 +1,17 @@
 import EventsBrowser from './EventsBrowser';
 import EventFilters from './EventFilters';
-import EventTimeline from './EventTimeline';
+import EventsView from './EventsView';
 import FieldRules from './FieldRules';
 import FieldFilters from './FieldFilters';
+import EventsTable from './EventsTable';
+import EventsPlayback from './EventsPlayback';
 
 export default {
   EventsBrowser,
   EventFilters,
-  EventTimeline,
+  EventsView,
   FieldRules,
   FieldFilters,
+  EventsTable,
+  EventsPlayback,
 };

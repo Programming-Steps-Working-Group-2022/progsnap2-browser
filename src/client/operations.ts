@@ -20,6 +20,9 @@ export const getLatency = (
   return new Date(`${d1}`).getTime() - new Date(`${d0}`).getTime();
 };
 
+export const looselyEqual = (v1: PrimitiveValues, v2: PrimitiveValues) =>
+  v1 === v2 || v1?.toString().trim() === v2?.toString().trim();
+
 export const collapseRows = (
   events: ProgSnap2Event[],
   rules: FieldRule[],
@@ -37,7 +40,7 @@ export const collapseRows = (
           // TODO check this...
           return i === last || getLatency(v, events[i + 1][r.name]);
         case 'unchanged':
-          return i === 0 || v !== events[i - 1][r.name];
+          return i === 0 || !looselyEqual(v, events[i - 1][r.name]);
         case 'empty':
           return v !== undefined && v !== '';
         default:

@@ -5,26 +5,37 @@ import { pickExistingFrom, collapseRows } from './operations';
 import { ProgSnap2Event } from '../types';
 import { FieldRule } from './FieldRules';
 
-@customElement('event-timeline')
-class EventTimeline extends LitElement {
+@customElement('events-view')
+class EventsView extends LitElement {
   @property({ type: Array })
   events: ProgSnap2Event[] = [];
 
   @state()
-  fieldRules: FieldRule[] = [];
+  private fieldRules: FieldRule[] = [];
 
   @state()
-  displayFields?: string[] = undefined;
+  private displayFields?: string[] = undefined;
+
+  @state()
+  private playbackMode = false;
 
   render(): TemplateResult {
     if (!this.events.length) {
       return html`<div>No events available</div>`;
     }
     const allFields = Object.keys(this.events[0]);
-    const ruleFields = this.fieldRules.map(r => r.name);
     const fields = this.displayFields || allFields;
+    const events = collapseRows(this.events, this.fieldRules);
 
     return html`
+      <div class="playback-mode">
+        <button .disabled=${!this.playbackMode} @click=${this.togglePlayback}>
+          Table
+        </button>
+        <button .disabled=${this.playbackMode} @click=${this.togglePlayback}>
+          Play
+        </button>
+      </div>
       <field-rules
         .rules=${this.fieldRules}
         @delete-rule=${(e: CustomEvent) => this.deleteFieldRule(e.detail.field)}
@@ -36,37 +47,26 @@ class EventTimeline extends LitElement {
         @select-display=${(e: CustomEvent) =>
           this.selectDisplay(e.detail.fields)}
       ></field-filters>
-      <table>
-        <thead>
-          <tr>
-            <!--<th>Annotate</th>-->
-            ${fields.map(
-              f => html`
-                <th>
-                  <strong @click=${() => this.focusDisplay(f)}>${f}</strong>
-                  <button
-                    class=${ruleFields.includes(f) ? 'active' : ''}
-                    @click=${() => this.addFieldRule(f)}
-                  >
-                    ⚙
-                  </button>
-                </th>
-              `,
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          ${collapseRows(this.events, this.fieldRules).map(
-            e => html`
-              <tr>
-                <!--<td><textarea rows="1"></textarea></td>-->
-                ${fields.map(f => html`<td><pre>${e[f || '']}</pre></td>`)}
-              </tr>
-            `,
-          )}
-        </tbody>
-      </table>
+      <div class="view">
+        ${this.playbackMode
+          ? html`<events-playback
+              .fields=${fields}
+              .events=${events}
+            ></events-playback>`
+          : html`<events-table
+              .fields=${fields}
+              .ruleFields=${this.fieldRules.map(r => r.name)}
+              .events=${events}
+              @focus-display=${(e: CustomEvent) =>
+                this.focusDisplay(e.detail.field)}
+              @add-rule=${(e: CustomEvent) => this.addFieldRule(e.detail.field)}
+            ></events-table>`}
+      </div>
     `;
+  }
+
+  togglePlayback(): void {
+    this.playbackMode = !this.playbackMode;
   }
 
   addFieldRule(field: string): void {
@@ -99,49 +99,23 @@ class EventTimeline extends LitElement {
   }
 
   static styles = css`
-    table {
-      max-width: 100%;
-      max-height: 600px;
-      overflow: auto;
+    .playback-mode {
+      position: absolute;
+      z-index: 10;
+      top: 5px;
+      right: 5px;
     }
-    table th {
-      position: sticky;
-      top: 0;
-      background-color: white;
-      text-align: left;
-      white-space: nowrap;
-    }
-    table th strong {
-      text-decoration: underline;
-      cursor: pointer;
-    }
-    table th button {
-      font-weight: bold;
-    }
-    table th button.active {
-      color: darkcyan;
-    }
-    table td {
-      border: 1px solid lightgray;
-      vertical-align: top;
-    }
-    table td textarea {
-      width: 100%;
-      height: 100%;
-      box-sizing: border-box;
-    }
-    table td pre {
-      margin: 0;
-      max-width: 50em;
-      word-wrap: pre-wrap;
+    .view {
+      position: relative;
+      height: 800px;
     }
   `;
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'event-timeline': EventTimeline;
+    'events-view': EventsView;
   }
 }
 
-export default EventTimeline;
+export default EventsView;

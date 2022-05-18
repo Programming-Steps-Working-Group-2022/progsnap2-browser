@@ -51,6 +51,7 @@ class EventFilters extends LitElement {
     }
     ul li {
       display: inline;
+      white-space: nowrap;
     }
   `;
 }

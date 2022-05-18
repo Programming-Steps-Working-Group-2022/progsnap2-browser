@@ -33,7 +33,7 @@ class EventsBrowser extends LitElement {
         .filters=${this.filters}
         @select-filter=${this.selectFilter}
       ></event-filters>
-      <event-timeline .events=${this.events}></event-timeline>
+      <events-view .events=${this.events}></events-view>
     `;
   }
 
