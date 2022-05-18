@@ -17,7 +17,9 @@ export const calculateEventFilterOptions = (
   Object.fromEntries(
     EVENT_FILTER_FIELDS.map(key => [
       key,
-      data[0][key] !== undefined ? unique(data, key) : undefined,
+      data.length > 0 && data[0][key] !== undefined
+        ? unique(data, key)
+        : undefined,
     ]),
   );
 

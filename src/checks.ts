@@ -105,7 +105,7 @@ export const checkProgsnap2Event = (obj: PrimitiveFields): ProgSnap2Event => {
     { name: 'EventID', required: true },
     { name: 'SubjectID', required: true },
     { name: 'ToolInstances', required: true },
-    { name: 'CodeStateID', required: true },
+    { name: 'CodeStateID', default: '-' },
     { name: 'EventType', required: true },
     { name: 'Order', type: 'number' },
     { name: 'ServerTimestamp' },
