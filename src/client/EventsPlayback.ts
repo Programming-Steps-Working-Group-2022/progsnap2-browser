@@ -1,10 +1,12 @@
-import { css, html, LitElement, TemplateResult } from 'lit';
+import { html, TemplateResult } from 'lit';
 // eslint-disable-next-line import/extensions
 import { customElement, property, state } from 'lit/decorators.js';
+import LitElementNoShadow from './LitElementNoShadow';
 import { ProgSnap2Event } from '../types';
+import './styles.css';
 
 @customElement('events-playback')
-class EventsPlayback extends LitElement {
+class EventsPlayback extends LitElementNoShadow {
   @property({ type: Array })
   fields: string[] = [];
 
@@ -34,8 +36,8 @@ class EventsPlayback extends LitElement {
       return html`<p>Index out of bounds</p>`;
     }
     return html`
-      <div class="wrap">
-        <div class="controls">
+      <div class="playback-wrap">
+        <div class="playback-controls">
           <button
             .disabled=${this.index < 1}
             @click=${() => this.setIndex(this.index - 1)}
@@ -52,7 +54,7 @@ class EventsPlayback extends LitElement {
             ▶
           </button>
         </div>
-        <table>
+        <table class="playback-fields">
           <tbody>
             ${this.fields.map(
               field => html`
@@ -60,7 +62,7 @@ class EventsPlayback extends LitElement {
                   <td>${field}</td>
                   <td>
                     ${field === 'X-CodeState'
-                      ? html`<pre><code id="src">${event[field]}</code></pre>`
+                      ? html`<source-code .src=${event[field]}></source-code>`
                       : html`<pre>${event[field]}</pre>`}
                   </td>
                 </tr>
@@ -113,22 +115,6 @@ class EventsPlayback extends LitElement {
         break;
     }
   }
-
-  static styles = css`
-    .controls {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      width: 200px;
-      margin-left: -50px;
-    }
-    .controls button {
-      font-size: 200%;
-    }
-    table td {
-      vertical-align: top;
-    }
-  `;
 }
 
 declare global {

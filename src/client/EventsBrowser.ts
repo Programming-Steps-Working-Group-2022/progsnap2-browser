@@ -1,6 +1,7 @@
-import { html, LitElement, TemplateResult } from 'lit';
+import { html, TemplateResult } from 'lit';
 // eslint-disable-next-line import/extensions
 import { customElement, property, state } from 'lit/decorators.js';
+import LitElementNoShadow from './LitElementNoShadow';
 import {
   EVENT_FILTER_FIELDS,
   EventFilterOptions,
@@ -8,7 +9,7 @@ import {
 } from '../types';
 
 @customElement('events-browser')
-class EventsBrowser extends LitElement {
+class EventsBrowser extends LitElementNoShadow {
   @property()
   filtersUrl?: string = undefined;
 

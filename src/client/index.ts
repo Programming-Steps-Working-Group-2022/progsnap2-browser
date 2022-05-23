@@ -5,6 +5,7 @@ import FieldRules from './FieldRules';
 import FieldFilters from './FieldFilters';
 import EventsTable from './EventsTable';
 import EventsPlayback from './EventsPlayback';
+import SourceCode from './SourceCode';
 
 export default {
   EventsBrowser,
@@ -14,4 +15,5 @@ export default {
   FieldFilters,
   EventsTable,
   EventsPlayback,
+  SourceCode,
 };

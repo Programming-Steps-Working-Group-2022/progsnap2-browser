@@ -1,12 +1,14 @@
-import { css, html, LitElement, TemplateResult } from 'lit';
+import { html, TemplateResult } from 'lit';
 // eslint-disable-next-line import/extensions
 import { customElement, property, state } from 'lit/decorators.js';
+import LitElementNoShadow from './LitElementNoShadow';
 import { pickExistingFrom, collapseRows } from './operations';
 import { ProgSnap2Event } from '../types';
 import { FieldRule } from './FieldRules';
+import './styles.css';
 
 @customElement('events-view')
-class EventsView extends LitElement {
+class EventsView extends LitElementNoShadow {
   @property({ type: Array })
   events: ProgSnap2Event[] = [];
 
@@ -47,7 +49,7 @@ class EventsView extends LitElement {
         @select-display=${(e: CustomEvent) =>
           this.selectDisplay(e.detail.fields)}
       ></field-filters>
-      <div class="view">
+      <div class="events-view">
         ${this.playbackMode
           ? html`<events-playback
               .fields=${fields}
@@ -97,19 +99,6 @@ class EventsView extends LitElement {
   selectDisplay(fields: string[]): void {
     this.displayFields = fields;
   }
-
-  static styles = css`
-    .playback-mode {
-      position: absolute;
-      z-index: 10;
-      top: 5px;
-      right: 5px;
-    }
-    .view {
-      position: relative;
-      height: 800px;
-    }
-  `;
 }
 
 declare global {

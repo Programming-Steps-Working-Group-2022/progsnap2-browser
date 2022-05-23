@@ -1,0 +1,23 @@
+.events-view {
+  position: relative;
+  height: 800px;
+}
+.playback-mode {
+  position: absolute;
+  z-index: 10;
+  top: 5px;
+  right: 5px;
+}
+.playback-controls {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  width: 200px;
+  margin-left: -50px;
+}
+.playback-controls button {
+  font-size: 200%;
+}
+table.playback-fields td {
+  vertical-align: top;
+}
