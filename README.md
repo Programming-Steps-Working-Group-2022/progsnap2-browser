@@ -1,17 +1,18 @@
 # ProgSnap2 browser
 
 A tool to investigate and possibly annotate datasets that represent
-student programming processes in ProgSnap2 format.
-https://cssplice.github.io/progsnap2/
+student programming processes in
+[ProgSnap2 format](https://cssplice.github.io/progsnap2/).
 
 ### Usage
 
 The tool can be installed locally to open a single CSV file at a time.
-Install [Node JS](https://nodejs.org/) first.
+Install [Node JS](https://nodejs.org/)
+([linux packages](https://github.com/nodesource/distributions)) first.
 The following takes a while to load the CSV into memory and then it
-should open the tool at http://localhost:3333/
+should open the tool in browser (http://localhost:3333/).
 
-    git clone <the repository address>
+    git clone the_repository_address
     npm install
     npm start path_to_your/MainTable.csv
 

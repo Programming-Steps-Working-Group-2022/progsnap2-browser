@@ -31,6 +31,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.5.1",
     "rollup": "2.66.1",
+    "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "0.27.1",
     "ts-node": "^10.7.0",
     "tsm": "2.2.1",

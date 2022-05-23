@@ -58,7 +58,11 @@ class EventsPlayback extends LitElement {
               field => html`
                 <tr>
                   <td>${field}</td>
-                  <td><pre>${event[field]}</pre></td>
+                  <td>
+                    ${field === 'X-CodeState'
+                      ? html`<pre><code id="src">${event[field]}</code></pre>`
+                      : html`<pre>${event[field]}</pre>`}
+                  </td>
                 </tr>
               `,
             )}
@@ -95,7 +99,6 @@ class EventsPlayback extends LitElement {
   }
 
   keyboard(event: KeyboardEvent) {
-    console.log(event, this);
     switch (event.key) {
       case 'ArrowLeft':
         this.setIndex(this.index - 1);
