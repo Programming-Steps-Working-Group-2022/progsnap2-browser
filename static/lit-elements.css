@@ -18,8 +18,11 @@
 .playback-controls button {
   font-size: 200%;
 }
-table.playback-fields td {
+.playback-fields td {
   vertical-align: top;
+}
+.playback-fields pre {
+  white-space: pre-wrap;
 }
 
 pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5px}/*!

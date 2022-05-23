@@ -18,6 +18,9 @@
 .playback-controls button {
   font-size: 200%;
 }
-table.playback-fields td {
+.playback-fields td {
   vertical-align: top;
+}
+.playback-fields pre {
+  white-space: pre-wrap;
 }
