@@ -1,12 +1,66 @@
+/* Tables */
+table th {
+  text-align: left;
+  white-space: nowrap;
+}
+table th strong {
+  text-decoration: underline;
+  cursor: pointer;
+}
+table th button {
+  font-weight: bold;
+}
+table th button.active {
+  color: darkcyan;
+}
+table td {
+  border: 1px solid lightgray;
+  vertical-align: top;
+}
+table td pre {
+  margin: 0;
+  white-space: pre-wrap;
+}
+table td pre code.hljs {
+  padding: 0;
+}
+table tr.current {
+  background-color: lightcyan;
+}
+
+/* Positioning */
 .events-view {
   position: relative;
-  height: 800px;
+  height: 700px;
 }
 .playback-mode {
   position: absolute;
   z-index: 10;
   top: 5px;
   right: 5px;
+}
+.table-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 5px;
+  overflow: auto;
+}
+.table-wrap table {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  border-collapse: collapse;
+}
+.table-wrap table th {
+  position: sticky;
+  top: 0;
+  background-color: white;
+}
+.table-wrap table td {
+  max-width: 50em;
 }
 .playback-controls {
   position: absolute;
@@ -17,12 +71,6 @@
 }
 .playback-controls button {
   font-size: 200%;
-}
-.playback-fields td {
-  vertical-align: top;
-}
-.playback-fields pre {
-  white-space: pre-wrap;
 }
 
 pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5px}/*!

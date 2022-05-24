@@ -12,6 +12,9 @@ class EventsView extends LitElementNoShadow {
   @property({ type: Array })
   events: ProgSnap2Event[] = [];
 
+  @property({ type: Number })
+  index = 0;
+
   @state()
   private fieldRules: FieldRule[] = [];
 
@@ -53,12 +56,16 @@ class EventsView extends LitElementNoShadow {
         ${this.playbackMode
           ? html`<events-playback
               .fields=${fields}
+              .ruleFields=${this.fieldRules.map(r => r.name)}
               .events=${events}
+              .index=${this.index}
+              @add-rule=${(e: CustomEvent) => this.addFieldRule(e.detail.field)}
             ></events-playback>`
           : html`<events-table
               .fields=${fields}
               .ruleFields=${this.fieldRules.map(r => r.name)}
               .events=${events}
+              .index=${this.index}
               @focus-display=${(e: CustomEvent) =>
                 this.focusDisplay(e.detail.field)}
               @add-rule=${(e: CustomEvent) => this.addFieldRule(e.detail.field)}

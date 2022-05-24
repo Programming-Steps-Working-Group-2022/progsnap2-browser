@@ -7,7 +7,7 @@ export { readCodeStateTable, readMainTable } from './reader';
 export { calculateEventFilterOptions, filterEvents } from './operations';
 
 export const initializeServer = async (csvFile: string) => {
-  const events = await readMainTable(csvFile);
+  const events = await readMainTable(csvFile, true);
   const filters = calculateEventFilterOptions(events);
 
   const app = express();

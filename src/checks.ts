@@ -104,13 +104,13 @@ export const checkProgsnap2Event = (obj: PrimitiveFields): ProgSnap2Event => {
   const commonFields: FieldNameAndProperties[] = [
     { name: 'EventID', required: true },
     { name: 'SubjectID', required: true },
-    { name: 'ToolInstances', required: true },
+    { name: 'ToolInstances', default: '-' },
     { name: 'CodeStateID', default: '-' },
     { name: 'EventType', required: true },
     { name: 'Order', type: 'number' },
-    { name: 'ServerTimestamp' },
+    { name: 'ServerTimestamp', type: 'numberOrString' },
     { name: 'ServerTimezone' },
-    { name: 'ClientTimestamp' },
+    { name: 'ClientTimestamp', type: 'numberOrString' },
     { name: 'ClientTimezone' },
     { name: 'CourseID' },
     { name: 'CourseSectionID' },
@@ -179,7 +179,7 @@ export const checkProgsnap2Event = (obj: PrimitiveFields): ProgSnap2Event => {
       return checkObject(
         obj,
         commonFields.concat([
-          { name: 'CodeStateSection', required: true },
+          { name: 'CodeStateSection', default: '-' },
           { name: 'EventInitiator' },
           { name: 'EditType', required: true },
           { name: 'SourceLocation', type: 'numberOrString' },
@@ -189,7 +189,7 @@ export const checkProgsnap2Event = (obj: PrimitiveFields): ProgSnap2Event => {
       return checkObject(
         obj,
         commonFields.concat([
-          { name: 'CodeStateSection', required: true },
+          { name: 'CodeStateSection', default: '-' },
           { name: 'EventInitiator' },
           {
             name: 'CompileResult',

@@ -11,10 +11,13 @@ class EventsPlayback extends LitElementNoShadow {
   fields: string[] = [];
 
   @property({ type: Array })
+  ruleFields: string[] = [];
+
+  @property({ type: Array })
   events: ProgSnap2Event[] = [];
 
-  @state()
-  private index = 0;
+  @property({ type: Number })
+  index = 0;
 
   @state()
   private interval?: number = undefined;
@@ -27,6 +30,22 @@ class EventsPlayback extends LitElementNoShadow {
   disconnectedCallback(): void {
     super.disconnectedCallback();
     document.removeEventListener('keydown', e => this.keyboard(e));
+  }
+
+  keyboard(event: KeyboardEvent) {
+    switch (event.key) {
+      case 'ArrowLeft':
+        this.setIndex(this.index - 1);
+        break;
+      case 'ArrowRight':
+        this.setIndex(this.index + 1);
+        break;
+      case ' ':
+        this.toggleInterval();
+        break;
+      default:
+        break;
+    }
   }
 
   render(): TemplateResult {
@@ -59,11 +78,24 @@ class EventsPlayback extends LitElementNoShadow {
             ${this.fields.map(
               field => html`
                 <tr>
-                  <td>${field}</td>
+                  <th>
+                    ${field}
+                    <button
+                      class=${this.ruleFields.includes(field) ? 'active' : ''}
+                      @click=${() =>
+                        this.dispatchEvent(
+                          new CustomEvent('add-rule', { detail: { field } }),
+                        )}
+                    >
+                      ⚙
+                    </button>
+                  </th>
                   <td>
-                    ${field === 'X-CodeState'
-                      ? html`<source-code .src=${event[field]}></source-code>`
-                      : html`<pre>${event[field]}</pre>`}
+                    <event-field
+                      .event=${event}
+                      .field=${field}
+                      .code=${true}
+                    ></event-field>
                   </td>
                 </tr>
               `,
@@ -78,7 +110,9 @@ class EventsPlayback extends LitElementNoShadow {
     if (this.interval !== undefined) {
       this.stopPlayback();
     }
-    this.index = index;
+    if (index >= 0 && index < this.events.length) {
+      this.broadcastIndex(index);
+    }
   }
 
   toggleInterval(): void {
@@ -87,7 +121,7 @@ class EventsPlayback extends LitElementNoShadow {
     } else {
       this.interval = window.setInterval(() => {
         if (this.index < this.events.length - 1) {
-          this.index += 1;
+          this.broadcastIndex(this.index + 1);
         } else {
           this.stopPlayback();
         }
@@ -100,20 +134,10 @@ class EventsPlayback extends LitElementNoShadow {
     this.interval = undefined;
   }
 
-  keyboard(event: KeyboardEvent) {
-    switch (event.key) {
-      case 'ArrowLeft':
-        this.setIndex(this.index - 1);
-        break;
-      case 'ArrowRight':
-        this.setIndex(this.index + 1);
-        break;
-      case ' ':
-        this.toggleInterval();
-        break;
-      default:
-        break;
-    }
+  broadcastIndex(index: number): void {
+    this.dispatchEvent(
+      new CustomEvent('set-index', { detail: { index }, bubbles: true }),
+    );
   }
 }
 

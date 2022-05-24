@@ -25,18 +25,8 @@ class EventsBrowser extends LitElementNoShadow {
   @state()
   private events: ProgSnap2Event[] = [];
 
-  render(): TemplateResult {
-    if (!this.filtersUrl || !this.eventsUrl) {
-      return html`<div>Element misses required attributes</div>`;
-    }
-    return html`
-      <event-filters
-        .filters=${this.filters}
-        @select-filter=${this.selectFilter}
-      ></event-filters>
-      <events-view .events=${this.events}></events-view>
-    `;
-  }
+  @state()
+  private index = 0;
 
   async connectedCallback(): Promise<void> {
     super.connectedCallback();
@@ -51,6 +41,25 @@ class EventsBrowser extends LitElementNoShadow {
       );
       this.fetchEvents();
     }
+  }
+
+  render(): TemplateResult {
+    if (!this.filtersUrl || !this.eventsUrl) {
+      return html`<div>Element misses required attributes</div>`;
+    }
+    return html`
+      <event-filters
+        .filters=${this.filters}
+        @select-filter=${this.selectFilter}
+      ></event-filters>
+      <events-view
+        .events=${this.events}
+        .index=${this.index}
+        @set-index=${(e: CustomEvent) => {
+          this.index = e.detail.index;
+        }}
+      ></events-view>
+    `;
   }
 
   async selectFilter(event: CustomEvent): Promise<void> {
@@ -69,6 +78,7 @@ class EventsBrowser extends LitElementNoShadow {
         body: JSON.stringify(this.selection),
       });
       this.events = await response.json();
+      this.index = 0;
     }
   }
 }

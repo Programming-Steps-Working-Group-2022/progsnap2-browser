@@ -39,10 +39,36 @@ const rowByRow = <T>(
     createReadStream(csvFile).pipe(parser);
   });
 
-export const readMainTable = (csvFile: string) =>
+const parseTime = (src: string | number, zone?: string): number => {
+  if (typeof src === 'string') {
+    return new Date(`${src}${zone || 'Z'}`).getTime();
+  }
+  // Assume before 1970-04-26 as seconds and convert to milliseconds
+  if (src < 10000000000) {
+    return src * 1000;
+  }
+  return src;
+};
+
+export const readMainTable = (csvFile: string, parseTimestamps = false) =>
   rowByRow<ProgSnap2Event>(csvFile, (row, count) => {
     try {
-      return checkProgsnap2Event(row);
+      const event = checkProgsnap2Event(row);
+      if (parseTimestamps) {
+        if (event.ClientTimestamp !== undefined) {
+          event.ClientTimestamp = parseTime(
+            event.ClientTimestamp,
+            event.ClientTimezone,
+          );
+        }
+        if (event.ServerTimestamp !== undefined) {
+          event.ServerTimestamp = parseTime(
+            event.ServerTimestamp,
+            event.ServerTimezone,
+          );
+        }
+      }
+      return event;
     } catch (e: unknown) {
       if (e instanceof ProgSnap2FormatError) {
         process.stderr.write(`Error at line ${count}: ${e.message}\n`);

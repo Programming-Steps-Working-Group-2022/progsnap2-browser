@@ -159,7 +159,7 @@ export interface CustomEvent extends BaseEventFields {
 export type ID = string;
 export type Integer = number;
 export type Real = number;
-export type Timestamp = string;
+export type Timestamp = string | number;
 export type Timezone = string;
 export type URL = string;
 export type RelativePath = string;

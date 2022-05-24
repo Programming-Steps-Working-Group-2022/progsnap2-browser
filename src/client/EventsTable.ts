@@ -1,10 +1,12 @@
-import { css, html, LitElement, TemplateResult } from 'lit';
+import { html, PropertyValueMap, TemplateResult } from 'lit';
 // eslint-disable-next-line import/extensions
 import { customElement, property } from 'lit/decorators.js';
+import LitElementNoShadow from './LitElementNoShadow';
 import { ProgSnap2Event } from '../types';
+import './styles.css';
 
 @customElement('events-table')
-class EventsTable extends LitElement {
+class EventsTable extends LitElementNoShadow {
   @property({ type: Array })
   fields: string[] = [];
 
@@ -14,9 +16,12 @@ class EventsTable extends LitElement {
   @property({ type: Array })
   events: ProgSnap2Event[] = [];
 
+  @property({ type: Number })
+  index = 0;
+
   render(): TemplateResult {
     return html`
-      <div class="wrap">
+      <div class="table-wrap">
         <table>
           <thead>
             <tr>
@@ -48,10 +53,13 @@ class EventsTable extends LitElement {
           </thead>
           <tbody>
             ${this.events.map(
-              e => html`
-                <tr>
+              (e, i) => html`
+                <tr class=${i === this.index ? 'current' : ''}>
                   ${this.fields.map(
-                    f => html`<td><pre>${e[f || '']}</pre></td>`,
+                    f =>
+                      html`<td>
+                        <event-field .event=${e} .field=${f}></event-field>
+                      </td>`,
                   )}
                 </tr>
               `,
@@ -62,49 +70,18 @@ class EventsTable extends LitElement {
     `;
   }
 
-  static styles = css`
-    .wrap {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      padding: 5px;
-      overflow: auto;
+  // eslint-disable-next-line class-methods-use-this
+  protected updated(changed: PropertyValueMap<unknown>): void {
+    if ([...changed.keys()].includes('index')) {
+      setTimeout(
+        () =>
+          document
+            .querySelector('tr.current')
+            ?.scrollIntoView({ block: 'center' }),
+        100,
+      );
     }
-    table {
-      position: sticky;
-      top: 0;
-      width: 100%;
-      border-collapse: collapse;
-    }
-    table th {
-      position: sticky;
-      top: 0;
-      background-color: white;
-      text-align: left;
-      white-space: nowrap;
-    }
-    table th strong {
-      text-decoration: underline;
-      cursor: pointer;
-    }
-    table th button {
-      font-weight: bold;
-    }
-    table th button.active {
-      color: darkcyan;
-    }
-    table td {
-      border: 1px solid lightgray;
-      vertical-align: top;
-    }
-    table td pre {
-      margin: 0;
-      max-width: 50em;
-      white-space: pre-wrap;
-    }
-  `;
+  }
 }
 
 declare global {
