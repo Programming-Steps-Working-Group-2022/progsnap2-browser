@@ -6,15 +6,17 @@ import { getSelectElementValue } from './dom';
 export interface FieldRule {
   name: string;
   collapse: string;
+  latency?: number;
 }
 
-export const DEFAULT_LATENCY = 5;
+export const DEFAULT_LATENCY = 5.0;
 
 const COLLAPSE_MODES = [
   { id: 'none', label: 'No rule' },
   { id: 'time', label: 'Collapse while step latency below threshold' },
   { id: 'unchanged', label: 'Collapse while unchanged' },
   { id: 'empty', label: 'Collapse while empty' },
+  { id: 'empty_or_unchanged', label: 'Collapse while unchanged or empty' },
 ];
 
 const TIME_FIELDS = ['ServerTimestamp', 'ClientTimestamp'];
@@ -58,6 +60,22 @@ class FieldRules extends LitElement {
                   `,
                 )}
               </select>
+              ${r.collapse === 'time'
+                ? html`<input
+                      type="number"
+                      step="0.1"
+                      min="0.1"
+                      .value=${(r.latency || DEFAULT_LATENCY).toString()}
+                      @change=${(e: Event) =>
+                        this.editRule({
+                          ...r,
+                          latency: parseFloat(
+                            (e.target as HTMLInputElement).value,
+                          ),
+                        })}
+                    />
+                    seconds`
+                : html``}
             </li>
           `,
         )}

@@ -1,5 +1,5 @@
 import { PrimitiveValues, ProgSnap2Event } from '../types';
-import { FieldRule } from './FieldRules';
+import { FieldRule, DEFAULT_LATENCY } from './FieldRules';
 
 export const pickExistingFrom = (all: string[], pick: string[][]): string[] =>
   pick
@@ -13,39 +13,85 @@ export const pickExistingFrom = (all: string[], pick: string[][]): string[] =>
     })
     .filter((s): s is string => s !== undefined);
 
-export const getLatency = (
-  d0: PrimitiveValues,
-  d1: PrimitiveValues,
-): number => {
-  return new Date(`${d1}`).getTime() - new Date(`${d0}`).getTime();
-};
+export const latencyLessThan = (
+  t0: PrimitiveValues,
+  t1: PrimitiveValues,
+  thresholdSeconds: number,
+): boolean =>
+  typeof t0 === 'number' &&
+  typeof t1 === 'number' &&
+  t1 - t0 < thresholdSeconds * 1000;
 
 export const looselyEqual = (v1: PrimitiveValues, v2: PrimitiveValues) =>
   v1 === v2 || v1?.toString().trim() === v2?.toString().trim();
+
+const violatesRule = (
+  rule: FieldRule,
+  index: number,
+  all: ProgSnap2Event[],
+  accepted: ProgSnap2Event[],
+) => {
+  const v = all[index][rule.name];
+  switch (rule.collapse) {
+    case 'time':
+      return (
+        index < all.length - 1 &&
+        latencyLessThan(
+          v,
+          all[index + 1][rule.name],
+          rule.latency || DEFAULT_LATENCY,
+        )
+      );
+    case 'unchanged':
+      return (
+        accepted.length > 0 &&
+        looselyEqual(v, accepted[accepted.length - 1][rule.name])
+      );
+    case 'empty':
+      return v === undefined || v === '';
+    case 'empty_or_unchanged':
+      return (
+        v === undefined ||
+        v === '' ||
+        (accepted.length > 0 &&
+          looselyEqual(v, accepted[accepted.length - 1][rule.name]))
+      );
+    default:
+      return false;
+  }
+};
+
+const passesRuleset = (
+  andRules: FieldRule[],
+  orRules: FieldRule[],
+  index: number,
+  all: ProgSnap2Event[],
+  accepted: ProgSnap2Event[],
+): boolean => {
+  for (let i = 0; i < andRules.length; i += 1) {
+    if (violatesRule(andRules[i], index, all, accepted)) {
+      return false;
+    }
+  }
+  for (let i = 0; i < orRules.length; i += 1) {
+    if (!violatesRule(orRules[i], index, all, accepted)) {
+      return true;
+    }
+  }
+  return orRules.length === 0;
+};
 
 export const collapseRows = (
   events: ProgSnap2Event[],
   rules: FieldRule[],
 ): ProgSnap2Event[] => {
-  const cleanRules = rules.filter(r => r.collapse !== 'none');
-  if (cleanRules.length === 0) {
-    return events;
+  const andRules = rules.filter(r => r.collapse === 'time');
+  const orRules = rules.filter(r => !['none', 'time'].includes(r.collapse));
+  const accepted: ProgSnap2Event[] = [];
+  for (let i = 0; i < events.length; i += 1) {
+    if (passesRuleset(andRules, orRules, i, events, accepted)) {
+      accepted.push(events[i]);
+    }
   }
-  const last = events.length - 1;
-  return events.filter((e, i) =>
-    cleanRules.some(r => {
-      const v = e[r.name];
-      switch (r.collapse) {
-        case 'time':
-          // TODO check this...
-          return i === last || getLatency(v, events[i + 1][r.name]);
-        case 'unchanged':
-          return i === 0 || !looselyEqual(v, events[i - 1][r.name]);
-        case 'empty':
-          return v !== undefined && v !== '';
-        default:
-          return true;
-      }
-    }),
-  );
+  return accepted;
 };
