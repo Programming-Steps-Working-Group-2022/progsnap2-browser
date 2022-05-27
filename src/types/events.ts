@@ -1,3 +1,20 @@
+import {
+  CompileResult,
+  EditType,
+  EventInitiator,
+  ExecutionResult,
+  ID,
+  Integer,
+  InterventionCategory,
+  PrimitiveFields,
+  Real,
+  RelativePath,
+  SourceLocation,
+  Timestamp,
+  Timezone,
+  URL,
+} from './fields';
+
 export type ProgSnap2Event =
   | SessionEvent
   | ProjectEvent
@@ -12,9 +29,6 @@ export type ProgSnap2Event =
   | ViewEvent
   | InterventionEvent
   | CustomEvent;
-
-export type PrimitiveValues = string | number | boolean | undefined;
-export type PrimitiveFields = { [k: string]: PrimitiveValues };
 
 interface BaseEventFields extends PrimitiveFields {
   EventID: ID;
@@ -38,24 +52,6 @@ interface BaseEventFields extends PrimitiveFields {
   TeamID?: ID;
   LoggingErrorID?: ID;
 }
-
-export interface EventFilterOptions {
-  CourseID?: PrimitiveValues[];
-  CourseSectionID?: PrimitiveValues[];
-  TermID?: PrimitiveValues[];
-  AssignmentID?: PrimitiveValues[];
-  ProblemID?: PrimitiveValues[];
-  SubjectID?: PrimitiveValues[];
-}
-
-export const EVENT_FILTER_FIELDS: (keyof EventFilterOptions)[] = [
-  'CourseID',
-  'CourseSectionID',
-  'TermID',
-  'AssignmentID',
-  'ProblemID',
-  'SubjectID',
-];
 
 export interface SessionEvent extends BaseEventFields {
   EventType: 'Session.Start' | 'Session.End';
@@ -154,55 +150,4 @@ export interface InterventionEvent extends BaseEventFields {
 
 export interface CustomEvent extends BaseEventFields {
   EventType: string;
-}
-
-export type ID = string;
-export type Integer = number;
-export type Real = number;
-export type Timestamp = string | number;
-export type Timezone = string;
-export type URL = string;
-export type RelativePath = string;
-
-export type EventInitiator =
-  | 'UserDirectAction'
-  | 'UserIndirectAction'
-  | 'ToolReaction'
-  | 'ToolTimedEvent'
-  | 'InstructorDirectAction'
-  | 'InstructorIndirectAction'
-  | 'TeamMemberDirectAction'
-  | 'TeamMemberIndirectAction'
-  | string;
-
-export type EditType =
-  | 'GenericEdit'
-  | 'Insert'
-  | 'Delete'
-  | 'Replace'
-  | 'Move'
-  | 'Paste'
-  | 'Undo'
-  | 'Redo'
-  | 'Refactor'
-  | 'Reset'
-  | string;
-
-export type CompileResult = 'Success' | 'Warning' | 'Error';
-
-export type SourceLocation = string | number;
-
-export type ExecutionResult = 'Success' | 'Timeout' | 'Error' | 'TestFailed';
-
-export type InterventionCategory =
-  | 'Feedback'
-  | 'Hint'
-  | 'CodeHighlight'
-  | 'CodeChange'
-  | 'EarnedGrade'
-  | string;
-
-export interface ProgSnap2CodeState extends PrimitiveFields {
-  CodeStateID: string;
-  Code: string;
 }

@@ -1,3 +1,4 @@
+import DatasetSelector from './DatasetSelector';
 import EventsBrowser from './EventsBrowser';
 import EventFilters from './EventFilters';
 import EventsView from './EventsView';
@@ -9,6 +10,7 @@ import EventField from './EventField';
 import SourceCode from './SourceCode';
 
 export default {
+  DatasetSelector,
   EventsBrowser,
   EventFilters,
   EventsView,

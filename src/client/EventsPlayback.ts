@@ -3,7 +3,6 @@ import { html, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import LitElementNoShadow from './LitElementNoShadow';
 import { ProgSnap2Event } from '../types';
-import './styles.css';
 
 @customElement('events-playback')
 class EventsPlayback extends LitElementNoShadow {
@@ -17,7 +16,7 @@ class EventsPlayback extends LitElementNoShadow {
   events: ProgSnap2Event[] = [];
 
   @property({ type: Number })
-  index = 0;
+  step = 0;
 
   @state()
   private interval?: number = undefined;
@@ -35,10 +34,10 @@ class EventsPlayback extends LitElementNoShadow {
   keyboard(event: KeyboardEvent) {
     switch (event.key) {
       case 'ArrowLeft':
-        this.setIndex(this.index - 1);
+        this.setIndex(this.step - 1);
         break;
       case 'ArrowRight':
-        this.setIndex(this.index + 1);
+        this.setIndex(this.step + 1);
         break;
       case ' ':
         this.toggleInterval();
@@ -50,7 +49,7 @@ class EventsPlayback extends LitElementNoShadow {
 
   render(): TemplateResult {
     const last = this.events.length - 1;
-    const event = this.events[this.index];
+    const event = this.events[this.step];
     if (event === undefined) {
       return html`<p>Index out of bounds</p>`;
     }
@@ -58,8 +57,8 @@ class EventsPlayback extends LitElementNoShadow {
       <div class="playback-wrap">
         <div class="playback-controls">
           <button
-            .disabled=${this.index < 1}
-            @click=${() => this.setIndex(this.index - 1)}
+            .disabled=${this.step < 1}
+            @click=${() => this.setIndex(this.step - 1)}
           >
             ◀
           </button>
@@ -67,8 +66,8 @@ class EventsPlayback extends LitElementNoShadow {
             ${this.interval !== undefined ? 'Stop' : 'Play'}
           </button>
           <button
-            .disabled=${this.index >= last}
-            @click=${() => this.setIndex(this.index + 1)}
+            .disabled=${this.step >= last}
+            @click=${() => this.setIndex(this.step + 1)}
           >
             ▶
           </button>
@@ -120,8 +119,8 @@ class EventsPlayback extends LitElementNoShadow {
       this.stopPlayback();
     } else {
       this.interval = window.setInterval(() => {
-        if (this.index < this.events.length - 1) {
-          this.broadcastIndex(this.index + 1);
+        if (this.step < this.events.length - 1) {
+          this.broadcastIndex(this.step + 1);
         } else {
           this.stopPlayback();
         }
@@ -134,9 +133,9 @@ class EventsPlayback extends LitElementNoShadow {
     this.interval = undefined;
   }
 
-  broadcastIndex(index: number): void {
+  broadcastIndex(step: number): void {
     this.dispatchEvent(
-      new CustomEvent('set-index', { detail: { index }, bubbles: true }),
+      new CustomEvent('set-step', { detail: { step }, bubbles: true }),
     );
   }
 }

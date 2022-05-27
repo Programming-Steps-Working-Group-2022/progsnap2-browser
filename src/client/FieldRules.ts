@@ -1,25 +1,12 @@
 import { css, html, LitElement, TemplateResult } from 'lit';
 // eslint-disable-next-line import/extensions
 import { customElement, property } from 'lit/decorators.js';
-import { getSelectElementValue } from './dom';
-
-export interface FieldRule {
-  name: string;
-  collapse: string;
-  latency?: number;
-}
-
-export const DEFAULT_LATENCY = 5.0;
-
-const COLLAPSE_MODES = [
-  { id: 'none', label: 'No rule' },
-  { id: 'time', label: 'Collapse while step latency below threshold' },
-  { id: 'unchanged', label: 'Collapse while unchanged' },
-  { id: 'empty', label: 'Collapse while empty' },
-  { id: 'empty_or_unchanged', label: 'Collapse while unchanged or empty' },
-];
-
-const TIME_FIELDS = ['ServerTimestamp', 'ClientTimestamp'];
+import {
+  DEFAULT_LATENCY_THRESHOLD,
+  EVENT_TIME_FIELDS,
+  FieldRule,
+  RULE_COLLAPSE_MODES,
+} from '../types';
 
 @customElement('field-rules')
 class FieldRules extends LitElement {
@@ -27,6 +14,11 @@ class FieldRules extends LitElement {
   rules: FieldRule[] = [];
 
   render(): TemplateResult {
+    const selectValue = (select: HTMLSelectElement): string =>
+      select.options[select.selectedIndex].value;
+    const numberValue = (input: HTMLInputElement): number =>
+      parseFloat(input.value);
+
     if (this.rules.length === 0) {
       return html``;
     }
@@ -35,20 +27,18 @@ class FieldRules extends LitElement {
         ${this.rules.map(
           r => html`
             <li>
-              <button @click=${() => this.deleteRule(r.name)}>x</button>
-              ${r.name}
+              <button @click=${() => this.deleteRule(r.field)}>x</button>
+              ${r.field}
               <select
                 @change=${(e: Event) =>
                   this.editRule({
                     ...r,
-                    collapse: getSelectElementValue(
-                      e.target as HTMLSelectElement,
-                    ),
+                    collapse: selectValue(e.target as HTMLSelectElement),
                   })}
               >
-                ${(TIME_FIELDS.includes(r.name)
-                  ? COLLAPSE_MODES
-                  : COLLAPSE_MODES.filter(m => m.id !== 'time')
+                ${(EVENT_TIME_FIELDS.includes(r.field)
+                  ? RULE_COLLAPSE_MODES
+                  : RULE_COLLAPSE_MODES.filter(m => m.id !== 'time')
                 ).map(
                   mode => html`
                     <option
@@ -65,13 +55,13 @@ class FieldRules extends LitElement {
                       type="number"
                       step="0.1"
                       min="0.1"
-                      .value=${(r.latency || DEFAULT_LATENCY).toString()}
+                      .value=${(
+                        r.latency || DEFAULT_LATENCY_THRESHOLD
+                      ).toString()}
                       @change=${(e: Event) =>
                         this.editRule({
                           ...r,
-                          latency: parseFloat(
-                            (e.target as HTMLInputElement).value,
-                          ),
+                          latency: numberValue(e.target as HTMLInputElement),
                         })}
                     />
                     seconds`

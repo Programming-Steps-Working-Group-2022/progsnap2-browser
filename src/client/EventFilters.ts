@@ -1,43 +1,51 @@
 import { css, html, LitElement, TemplateResult } from 'lit';
 // eslint-disable-next-line import/extensions
 import { customElement, property } from 'lit/decorators.js';
-import { getSelectElementValue } from './dom';
-import { EVENT_FILTER_FIELDS, EventFilterOptions } from '../types';
+import { EMPTY_INDEX, EventIndex, PrimitiveFields, PrimitiveValues } from '../types';
+import { indexToOptions } from '../transform';
 
 @customElement('event-filters')
 class EventFilters extends LitElement {
-  @property({ type: Object, reflect: true })
-  filters?: EventFilterOptions = undefined;
+  @property({ type: Object })
+  index: EventIndex = EMPTY_INDEX();
+
+  @property({ type: Object })
+  selection?: PrimitiveFields = undefined;
 
   render(): TemplateResult {
-    return this.filters === undefined
-      ? html`<div>Loading filter options...</div>`
-      : html`
-          <ul class="filters">
-            ${EVENT_FILTER_FIELDS.map(f => {
-              const options = (this.filters || {})[f];
-              return options !== undefined
-                ? html`
-                    <li>
-                      ${f}
-                      <select
-                        @change=${(e: Event) =>
-                          this.select(f, e.target as HTMLSelectElement)}
-                      >
-                        ${options.map(o => html`<option>${o}</option>`)}
-                      </select>
-                    </li>
-                  `
-                : undefined;
-            })}
-          </ul>
-        `;
+    return html`
+      <ul class="filters">
+        ${indexToOptions(this.index, this.selection || {}).map(
+          ({ field, selected, options }) =>
+            html`
+              <li>
+                ${field}
+                <select
+                  @change=${(e: Event) =>
+                    this.select(field, options, e.target as HTMLSelectElement)}
+                >
+                  ${options.map(
+                    o =>
+                      html`<option .selected=${o.value === selected}>
+                        ${o.value} ${o.size > 0 ? `(${o.size})` : ``}
+                      </option>`,
+                  )}
+                </select>
+              </li>
+            `,
+        )}
+      </ul>
+    `;
   }
 
-  select(field: string, select: HTMLSelectElement) {
+  select(
+    field: string,
+    options: { value: PrimitiveValues; size: number }[],
+    select: HTMLSelectElement,
+  ) {
     this.dispatchEvent(
       new CustomEvent('select-filter', {
-        detail: { field, value: getSelectElementValue(select) },
+        detail: { field, value: options[select.selectedIndex].value },
       }),
     );
   }

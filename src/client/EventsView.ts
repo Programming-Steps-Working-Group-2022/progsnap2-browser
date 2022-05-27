@@ -2,10 +2,13 @@ import { html, TemplateResult } from 'lit';
 // eslint-disable-next-line import/extensions
 import { customElement, property, state } from 'lit/decorators.js';
 import LitElementNoShadow from './LitElementNoShadow';
-import { pickExistingFrom, collapseRows } from './operations';
-import { ProgSnap2Event } from '../types';
-import { FieldRule } from './FieldRules';
-import './styles.css';
+import { pickExistingFrom, collapseRows } from '../transform';
+import {
+  ProgSnap2Event,
+  FieldRule,
+  EVENT_TIME_FIELDS,
+  EVENT_ID_FIELDS,
+} from '../types';
 
 @customElement('events-view')
 class EventsView extends LitElementNoShadow {
@@ -13,7 +16,7 @@ class EventsView extends LitElementNoShadow {
   events: ProgSnap2Event[] = [];
 
   @property({ type: Number })
-  index = 0;
+  step = 0;
 
   @state()
   private fieldRules: FieldRule[] = [];
@@ -56,16 +59,16 @@ class EventsView extends LitElementNoShadow {
         ${this.playbackMode
           ? html`<events-playback
               .fields=${fields}
-              .ruleFields=${this.fieldRules.map(r => r.name)}
+              .ruleFields=${this.fieldRules.map(r => r.field)}
               .events=${events}
-              .index=${this.index}
+              .step=${this.step}
               @add-rule=${(e: CustomEvent) => this.addFieldRule(e.detail.field)}
             ></events-playback>`
           : html`<events-table
               .fields=${fields}
-              .ruleFields=${this.fieldRules.map(r => r.name)}
+              .ruleFields=${this.fieldRules.map(r => r.field)}
               .events=${events}
-              .index=${this.index}
+              .step=${this.step}
               @focus-display=${(e: CustomEvent) =>
                 this.focusDisplay(e.detail.field)}
               @add-rule=${(e: CustomEvent) => this.addFieldRule(e.detail.field)}
@@ -79,26 +82,26 @@ class EventsView extends LitElementNoShadow {
   }
 
   addFieldRule(field: string): void {
-    if (!this.fieldRules.map(r => r.name).includes(field)) {
-      this.fieldRules = [...this.fieldRules, { name: field, collapse: 'none' }];
+    if (!this.fieldRules.map(r => r.field).includes(field)) {
+      this.fieldRules = [...this.fieldRules, { field, collapse: 'none' }];
     }
   }
 
   deleteFieldRule(field: string): void {
-    this.fieldRules = this.fieldRules.filter(r => r.name !== field);
+    this.fieldRules = this.fieldRules.filter(r => r.field !== field);
   }
 
   editFieldRule(rule: FieldRule): void {
     this.fieldRules = this.fieldRules.map(r =>
-      r.name === rule.name ? rule : r,
+      r.field === rule.field ? rule : r,
     );
   }
 
   focusDisplay(field: string): void {
     const fields = this.events.length > 0 ? Object.keys(this.events[0]) : [];
     this.displayFields = pickExistingFrom(fields, [
-      ['EventID'],
-      ['ClientTimestamp', 'ServerTimestamp'],
+      EVENT_ID_FIELDS,
+      EVENT_TIME_FIELDS,
       [field],
     ]);
   }

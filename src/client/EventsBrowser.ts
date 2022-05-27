@@ -2,61 +2,51 @@ import { html, TemplateResult } from 'lit';
 // eslint-disable-next-line import/extensions
 import { customElement, property, state } from 'lit/decorators.js';
 import LitElementNoShadow from './LitElementNoShadow';
-import {
-  EVENT_FILTER_FIELDS,
-  EventFilterOptions,
-  ProgSnap2Event,
-} from '../types';
+import { EventIndex, PrimitiveFields, ProgSnap2Event } from '../types';
+import { indexToOptions } from '../transform';
 
 @customElement('events-browser')
 class EventsBrowser extends LitElementNoShadow {
   @property()
-  filtersUrl?: string = undefined;
+  apiUrl?: string = undefined;
 
   @property()
-  eventsUrl?: string = undefined;
+  ds?: string = undefined;
 
   @state()
-  private filters?: EventFilterOptions = undefined;
+  private index?: EventIndex = undefined;
 
   @state()
-  private selection?: EventFilterOptions = undefined;
+  private selection?: PrimitiveFields = undefined;
 
   @state()
   private events: ProgSnap2Event[] = [];
 
   @state()
-  private index = 0;
+  private step = 0;
 
   async connectedCallback(): Promise<void> {
     super.connectedCallback();
-    if (this.filtersUrl) {
-      const response = await window.fetch(this.filtersUrl);
-      this.filters = await response.json();
-      this.selection = Object.fromEntries(
-        EVENT_FILTER_FIELDS.map(f => {
-          const options = (this.filters || {})[f];
-          return [f, options !== undefined ? options[0] : undefined];
-        }),
-      );
-      this.fetchEvents();
-    }
+    this.fetchIndex();
   }
 
   render(): TemplateResult {
-    if (!this.filtersUrl || !this.eventsUrl) {
-      return html`<div>Element misses required attributes</div>`;
+    if (!this.apiUrl || !this.ds) {
+      return html`<div class="error">Missing required attributes</div>`;
+    }
+    if (this.index === undefined || this.selection === undefined) {
+      return html`<div class="loader">Loading index...</div>`;
     }
     return html`
       <event-filters
-        .filters=${this.filters}
+        .index=${this.index}
         @select-filter=${this.selectFilter}
       ></event-filters>
       <events-view
         .events=${this.events}
-        .index=${this.index}
-        @set-index=${(e: CustomEvent) => {
-          this.index = e.detail.index;
+        .step=${this.step}
+        @set-step=${(e: CustomEvent) => {
+          this.step = e.detail.step;
         }}
       ></events-view>
     `;
@@ -65,21 +55,30 @@ class EventsBrowser extends LitElementNoShadow {
   async selectFilter(event: CustomEvent): Promise<void> {
     this.selection = {
       ...this.selection,
-      ...Object.fromEntries([[event.detail.field, [event.detail.value]]]),
+      ...Object.fromEntries([[event.detail.field, event.detail.value]]),
     };
     this.fetchEvents();
   }
 
-  async fetchEvents() {
-    if (this.eventsUrl) {
-      const response = await window.fetch(this.eventsUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(this.selection),
-      });
-      this.events = await response.json();
-      this.index = 0;
+  protected async fetchIndex() {
+    const response = await window.fetch(`${this.apiUrl}ds/${this.ds}/index`);
+    this.index = await response.json();
+    if (this.index !== undefined) {
+      this.selection = Object.fromEntries(
+        indexToOptions(this.index, {}).map(o => [o.field, o.selected]),
+      );
+      this.fetchEvents();
     }
+  }
+
+  protected async fetchEvents() {
+    const response = await window.fetch(`${this.apiUrl}ds/${this.ds}/select`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(this.selection),
+    });
+    this.events = await response.json();
+    this.step = 0;
   }
 }
 

@@ -3,7 +3,6 @@ import { html, PropertyValueMap, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import LitElementNoShadow from './LitElementNoShadow';
 import { ProgSnap2Event } from '../types';
-import './styles.css';
 
 @customElement('events-table')
 class EventsTable extends LitElementNoShadow {
@@ -17,7 +16,7 @@ class EventsTable extends LitElementNoShadow {
   events: ProgSnap2Event[] = [];
 
   @property({ type: Number })
-  index = 0;
+  step = 0;
 
   render(): TemplateResult {
     return html`
@@ -54,7 +53,7 @@ class EventsTable extends LitElementNoShadow {
           <tbody>
             ${this.events.map(
               (e, i) => html`
-                <tr class=${i === this.index ? 'current' : ''}>
+                <tr class=${i === this.step ? 'current' : ''}>
                   ${this.fields.map(
                     f =>
                       html`<td>
