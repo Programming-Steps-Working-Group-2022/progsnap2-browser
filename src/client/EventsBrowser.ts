@@ -40,6 +40,7 @@ class EventsBrowser extends LitElementNoShadow {
     return html`
       <event-filters
         .index=${this.index}
+        .selection=${this.selection}
         @select-filter=${this.selectFilter}
       ></event-filters>
       <events-view
@@ -53,11 +54,15 @@ class EventsBrowser extends LitElementNoShadow {
   }
 
   async selectFilter(event: CustomEvent): Promise<void> {
-    this.selection = {
-      ...this.selection,
-      ...Object.fromEntries([[event.detail.field, event.detail.value]]),
-    };
-    this.fetchEvents();
+    if (this.index !== undefined) {
+      this.selection = Object.fromEntries(
+        indexToOptions(this.index, {
+          ...this.selection,
+          ...Object.fromEntries([[event.detail.field, event.detail.value]]),
+        }).map(o => [o.field, o.selected]),
+      );
+      this.fetchEvents();
+    }
   }
 
   protected async fetchIndex() {

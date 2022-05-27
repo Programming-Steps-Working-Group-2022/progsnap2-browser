@@ -55,13 +55,13 @@ export const indexToOptions = (
     const options = level.map(o => {
       if (Array.isArray(o)) {
         const [v, n] = o;
-        if (next === undefined || v === search) {
+        if (selected === undefined || v === search) {
           selected = v;
           next = n;
         }
         return { value: v, size: n.length };
       }
-      if (selected === undefined) {
+      if (selected === undefined || o === search) {
         selected = o;
       }
       return { value: o, size: 0 };

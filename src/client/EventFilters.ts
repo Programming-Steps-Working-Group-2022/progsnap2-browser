@@ -1,7 +1,12 @@
 import { css, html, LitElement, TemplateResult } from 'lit';
 // eslint-disable-next-line import/extensions
 import { customElement, property } from 'lit/decorators.js';
-import { EMPTY_INDEX, EventIndex, PrimitiveFields, PrimitiveValues } from '../types';
+import {
+  EMPTY_INDEX,
+  EventIndex,
+  PrimitiveFields,
+  PrimitiveValues,
+} from '../types';
 import { indexToOptions } from '../transform';
 
 @customElement('event-filters')
