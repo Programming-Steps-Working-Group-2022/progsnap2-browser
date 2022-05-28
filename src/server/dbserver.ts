@@ -8,7 +8,7 @@ import {
   ProgSnap2Event,
 } from '../types';
 
-const dbConnect = process.env.DB || 'mongodb://localhost:27017';
+const dbConnect = process.env.DB || 'mongodb://127.0.0.1:27017';
 const dbName = process.env.DB_NAME || 'progsnap2browser';
 
 const C_DATASETS = 'datasets';

@@ -28,7 +28,7 @@ The Mongo database must be installed separately (eg. `apt install mongodb`).
 Process environment can override default port and database parameters.
 
     export PORT=3333
-    export DB="mongodb://localhost:27017"
+    export DB="mongodb://127.0.0.1:27017"
     export DB_NAME="progsnap2browser"
 
 ### Development
