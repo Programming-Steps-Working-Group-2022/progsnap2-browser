@@ -10,6 +10,7 @@
     "start": "ts-node src/server/run.ts",
     "load": "ts-node src/server/load.ts",
     "build": "rollup -c",
+    "build:server": "tsc -p tsconfig.json",
     "lint": "eslint src/**/*.{ts,js}",
     "test": "uvu -r tsm test"
   },

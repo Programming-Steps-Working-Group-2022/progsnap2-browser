@@ -23,6 +23,7 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
+    "outDir": "build"
   },
   "include": [
     "@types/**/*.ts",
