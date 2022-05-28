@@ -42,8 +42,8 @@ const run = async (
 
 if (process.argv.length !== 3) {
   console.log('Runs a local server to browse ProgSnap2 compatible CSV table.');
-  console.log('Usage: npm start [my_dataset/MainTable.csv]');
-} else if (process.argv[2] === '--db') {
+  console.log('Usage: npm start <my_dataset/MainTable.csv>');
+} else if (process.argv[2] === 'db') {
   run(async () => DataBaseServer());
 } else {
   run(async () => CSVServer(process.argv[2]), true);

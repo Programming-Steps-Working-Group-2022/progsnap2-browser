@@ -1,6 +1,6 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { CHECK_INDEX, TEST_INDEX, TEST_OPTIONS } from './fixtures';
+import { CHECK_INDEX, TEST_INDEX, TEST_ITERATION, TEST_OPTIONS } from './fixtures';
 import { ProgSnap2Event } from '../src/types';
 import { readMainTable } from '../src/server/csvreader';
 import {
@@ -8,6 +8,7 @@ import {
   collapseRows,
   filterEvents,
   indexToOptions,
+  iterateIndex,
 } from '../src/transform';
 
 // ---
@@ -60,6 +61,11 @@ data('should generate default index options', () => {
 data('should present index options for a selection', () => {
   const options = indexToOptions(TEST_INDEX, { A: 1, B: 'aa' });
   assert.equal(options, TEST_OPTIONS);
+});
+
+data('should iterate over index', () => {
+  const all = iterateIndex(TEST_INDEX);
+  assert.equal(all, TEST_ITERATION);
 });
 
 data.run();

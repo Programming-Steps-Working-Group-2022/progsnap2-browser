@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "ts-node src/server/run.ts",
+    "load": "ts-node src/server/load.ts",
     "build": "rollup -c",
     "lint": "eslint src/**/*.{ts,js}",
     "test": "uvu -r tsm test"

@@ -1,4 +1,4 @@
-import { EventIndex, EventIndexOptions } from '../src/types';
+import { EventIndex, EventIndexOptions, PrimitiveFields } from '../src/types';
 
 export const CHECK_INDEX: EventIndex = {
   fields: ['AssignmentID', 'SubjectID'],
@@ -33,4 +33,12 @@ export const TEST_OPTIONS: EventIndexOptions = [
       { value: 'bb', size: 0 },
     ],
   },
+];
+
+export const TEST_ITERATION: PrimitiveFields[] = [
+  { A: 0, B: 'aa' },
+  { A: 0, B: 'bb' },
+  { A: 0, B: 'cc' },
+  { A: 1, B: 'aa' },
+  { A: 1, B: 'bb' },
 ];

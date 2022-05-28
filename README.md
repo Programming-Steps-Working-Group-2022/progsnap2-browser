@@ -9,15 +9,27 @@ student programming processes in
 The tool can be installed locally to open a single CSV file at a time.
 Install [Node JS](https://nodejs.org/)
 ([linux packages](https://github.com/nodesource/distributions)) first.
-The following takes a while to load the CSV into memory and then it
-should open the tool in browser (http://localhost:3333/).
+The following command takes a while to load the CSV into memory and
+then it should open the tool in browser (http://localhost:3333/).
 
-    git clone the_repository_address
+    git clone <the_repository_address>
     npm install
-    npm start path_to_your/MainTable.csv
+    npm start <my_dataset/MainTable.csv>
 
-Plans exist to install this online. An alternative backend could support
-loading datasets from CSV to database and deliver them on request from UI.
+Alternatively, the tool runs on a Mongo database which helps to scale
+for any number of large datasets. The following commands are required to
+1) load desired datasets into the database and 2) start serving from the
+database.
+
+    npm run load <dataset_id> <my_dataset/MainTable.csv> <description.txt>
+    npm start db
+
+The Mongo database must be installed separately (eg. `apt install mongodb`).
+Process environment can override default port and database parameters.
+
+    export PORT=3333
+    export DB="mongodb://localhost:27017"
+    export DB_NAME="progsnap2browser"
 
 ### Development
 
@@ -29,6 +41,7 @@ standards and use [VS Code](https://code.visualstudio.com/).
 * `src/server` an [Express](https://expressjs.com/) backend to serve
     minimal API over HTTP
 * `src/client` a client using [Lit](https://lit.dev/) web components
+    (reactive properties automatically re-render elements as required)
 
 Compile the client for the browser:
 

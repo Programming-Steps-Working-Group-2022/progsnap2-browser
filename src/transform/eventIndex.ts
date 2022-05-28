@@ -8,7 +8,7 @@ import {
   PrimitiveValues,
   ProgSnap2Event,
 } from '../types';
-import { unique } from './helpers';
+import { unique, withField } from './helpers';
 
 export const buildEventIndex = (events: ProgSnap2Event[]): EventIndex => {
   const recursion = (
@@ -75,4 +75,28 @@ export const indexToOptions = (
     return [{ field, selected, options }];
   };
   return recursion(index.fields, index.levels);
+};
+
+export const iterateIndex = (index: EventIndex): PrimitiveFields[] => {
+  const allFilters: PrimitiveFields[] = [];
+  const recursion = (
+    filter: PrimitiveFields,
+    level: EventIndexLevel,
+    depth: number,
+  ): void => {
+    level.forEach(o => {
+      if (Array.isArray(o)) {
+        const [value, next] = o;
+        recursion(
+          withField(filter, index.fields[depth], value),
+          next,
+          depth + 1,
+        );
+      } else {
+        allFilters.push(withField(filter, index.fields[depth], o));
+      }
+    });
+  };
+  recursion({}, index.levels, 0);
+  return allFilters;
 };

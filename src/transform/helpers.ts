@@ -5,6 +5,15 @@ export const unique = (
   key: string,
 ): PrimitiveValues[] => [...new Set(data.map(entry => entry[key]))].sort();
 
+export const withField = (
+  obj: PrimitiveFields,
+  field: string,
+  value: PrimitiveValues,
+): PrimitiveFields => ({
+  ...obj,
+  ...Object.fromEntries([[field, value]]),
+});
+
 export const pickExistingFrom = (all: string[], pick: string[][]): string[] =>
   pick
     .map(search => {

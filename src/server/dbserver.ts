@@ -1,4 +1,4 @@
-import mongodb from 'mongodb';
+import { MongoClient } from 'mongodb';
 import {
   AdminServer,
   Dataset,
@@ -15,8 +15,11 @@ const C_DATASETS = 'datasets';
 const C_FILTERS = 'filters';
 const C_EVENTS = 'events';
 
+/* eslint-disable no-console */
+
 const DataBaseServer = async (): Promise<AdminServer> => {
-  const client = new mongodb.MongoClient(dbConnect);
+  console.log(`Connecting to database ${dbConnect}`);
+  const client = new MongoClient(dbConnect);
   await client.connect();
   const db = client.db(dbName);
   return {
@@ -51,12 +54,12 @@ const DataBaseServer = async (): Promise<AdminServer> => {
     },
     resetDataset: async (ds: string) => {
       await db.collection(C_EVENTS).deleteMany({ ds });
-      await db.collection(C_FILTERS).deleteOne({ ds });
+      await db.collection(C_FILTERS).deleteMany({ ds });
     },
     dropDataset: async (ds: string) => {
       await db.collection(C_EVENTS).deleteMany({ ds });
-      await db.collection(C_FILTERS).deleteOne({ ds });
-      await db.collection(C_DATASETS).deleteOne({ id: ds });
+      await db.collection(C_FILTERS).deleteMany({ ds });
+      await db.collection(C_DATASETS).deleteMany({ id: ds });
     },
   };
 };
