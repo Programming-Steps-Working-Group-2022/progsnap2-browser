@@ -3,9 +3,11 @@ import { createReadStream } from 'fs';
 import {
   checkProgsnap2CodeState,
   checkProgsnap2Event,
+  PrimitiveFields,
+  ProgSnap2CodeState,
+  ProgSnap2Event,
   ProgSnap2FormatError,
-} from '../checks';
-import { PrimitiveFields, ProgSnap2CodeState, ProgSnap2Event } from '../types';
+} from '../types';
 
 const rowByRow = <T>(
   csvFile: string,

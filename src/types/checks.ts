@@ -1,6 +1,5 @@
+import { PrimitiveValues, PrimitiveFields } from './fields';
 import {
-  PrimitiveValues,
-  PrimitiveFields,
   ProgSnap2Event,
   SessionEvent,
   ProjectEvent,
@@ -15,8 +14,8 @@ import {
   ViewEvent,
   InterventionEvent,
   CustomEvent,
-  ProgSnap2CodeState,
-} from './types';
+} from './events';
+import { ProgSnap2CodeState } from './codestates';
 
 export class ProgSnap2FormatError extends Error {}
 

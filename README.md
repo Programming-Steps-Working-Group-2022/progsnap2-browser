@@ -18,8 +18,8 @@ then it should open the tool in browser (http://localhost:3333/).
 
 Alternatively, the tool runs on a Mongo database which helps to scale
 for any number of large datasets. The following commands are required to
-1) load desired datasets into the database and 2) start serving from the
-database.
+first, load any desired datasets into the database, and second, start
+serving from the database.
 
     npm run load <dataset_id> <my_dataset/MainTable.csv> <description.txt>
     npm start db
@@ -36,8 +36,8 @@ Process environment can override default port and database parameters.
 The aim is to follow recent [TypeScript](https://www.typescriptlang.org/)
 standards and use [VS Code](https://code.visualstudio.com/).
 
-* `src/types.ts` defines types
-* `src/checks.ts` provides some type checking for data
+* `src/types` defines types and type checking for csv data
+* `src/transform` data transformations (unittests exists in `test/`)
 * `src/server` an [Express](https://expressjs.com/) backend to serve
     minimal API over HTTP
 * `src/client` a client using [Lit](https://lit.dev/) web components
@@ -45,4 +45,6 @@ standards and use [VS Code](https://code.visualstudio.com/).
 
 Compile the client for the browser:
 
+    npm test
+    npm run lint
     npm run build
