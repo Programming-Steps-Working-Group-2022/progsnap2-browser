@@ -1,17 +1,17 @@
 {
   "ts-node": {
     "transpileOnly": true,
-    "compilerOptions": {
-      "module": "commonjs",
-      "sourceMap": true,
-    },
     "include": [
       "test/**/*"
+    ],
+    "exclude": [
+      "src/client"
     ]
   },
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
+    "module": "commonjs",
+    "sourceMap": true,
     "declaration": true,
     "declarationDir": "types",
     "forceConsistentCasingInFileNames": true,
@@ -26,9 +26,7 @@
     "outDir": "build"
   },
   "include": [
-    "@types/**/*.ts",
-    "src/**/*.ts",
-    "test/**/*.ts",
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules"

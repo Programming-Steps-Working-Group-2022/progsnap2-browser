@@ -12,7 +12,16 @@ export default {
 	}],
 	plugins: [
 		typescript({
-			useTsconfigDeclarationDir: true
+			useTsconfigDeclarationDir: true,
+			tsconfigOverride: {
+				compilerOptions: {
+					module: 'esnext',
+				},
+				exclude: [
+					'node_modules',
+					'src/server',
+				],
+			},
 		}),
 		resolve(),
 		commonjs(),
