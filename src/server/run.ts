@@ -1,4 +1,5 @@
 import express from 'express';
+import morgan from 'morgan';
 import nocache from 'nocache';
 import open from 'open';
 import CSVServer from './csvserver';
@@ -15,6 +16,7 @@ const run = async (
 ) => {
   const srv = await constructor();
   const app = express();
+  app.use(morgan('combined'));
   app.use(express.static('static'));
   app.use(express.json());
   app.use(nocache());
