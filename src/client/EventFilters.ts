@@ -20,6 +20,16 @@ class EventFilters extends LitElement {
   render(): TemplateResult {
     return html`
       <ul class="filters">
+        <li>
+          <button
+            @click=${() =>
+              this.dispatchEvent(
+                new CustomEvent('pick-dataset', { bubbles: true }),
+              )}
+          >
+            ◀ Datasets
+          </button>
+        </li>
         ${indexToOptions(this.index, this.selection || {}).map(
           ({ field, selected, options }) =>
             html`

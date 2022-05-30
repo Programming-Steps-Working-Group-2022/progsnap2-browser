@@ -19,6 +19,17 @@ class DatasetSelector extends LitElementNoShadow {
   async connectedCallback(): Promise<void> {
     super.connectedCallback();
     this.fetchDatasetMeta();
+    this.parseURI();
+    window.onpopstate = () => {
+      this.parseURI();
+    };
+  }
+
+  protected parseURI() {
+    const match = window.location.href.match(/(#[\w-]+)?$/);
+    if (match !== null) {
+      this.selected = match[0].substring(1);
+    }
   }
 
   render(): TemplateResult {
@@ -32,6 +43,7 @@ class DatasetSelector extends LitElementNoShadow {
       return html`<events-browser
         .apiUrl=${this.apiUrl}
         .ds=${this.selected}
+        @pick-dataset=${() => this.selectDataset(undefined)}
       ></events-browser>`;
     }
     return html`
@@ -52,9 +64,13 @@ class DatasetSelector extends LitElementNoShadow {
     `;
   }
 
-  protected selectDataset(ds: Dataset) {
-    // window.history.pushState({}, '', `${ds.id}/`);
-    this.selected = ds.id;
+  protected selectDataset(ds?: Dataset) {
+    if (ds !== undefined) {
+      window.history.pushState({}, '', `#${ds.id}`);
+    } else {
+      window.history.pushState({}, '', './');
+    }
+    this.selected = ds?.id;
   }
 
   protected async fetchDatasetMeta() {
