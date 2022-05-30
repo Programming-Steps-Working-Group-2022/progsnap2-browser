@@ -13,7 +13,7 @@ import {
 @customElement('events-view')
 class EventsView extends LitElementNoShadow {
   @property({ type: Array })
-  events: ProgSnap2Event[] = [];
+  events?: ProgSnap2Event[] = undefined;
 
   @property({ type: Number })
   step = 0;
@@ -28,7 +28,10 @@ class EventsView extends LitElementNoShadow {
   private playbackMode = false;
 
   render(): TemplateResult {
-    if (!this.events.length) {
+    if (this.events === undefined) {
+      return html`<div class="loader">Loading events...</div>`;
+    }
+    if (this.events.length === 0) {
       return html`<div>No events available</div>`;
     }
     const allFields = Object.keys(this.events[0]);
@@ -98,12 +101,13 @@ class EventsView extends LitElementNoShadow {
   }
 
   focusDisplay(field: string): void {
-    const fields = this.events.length > 0 ? Object.keys(this.events[0]) : [];
-    this.displayFields = pickExistingFrom(fields, [
-      EVENT_ID_FIELDS,
-      EVENT_TIME_FIELDS,
-      [field],
-    ]);
+    if (this.events !== undefined && this.events.length > 0) {
+      this.displayFields = pickExistingFrom(Object.keys(this.events[0]), [
+        EVENT_ID_FIELDS,
+        EVENT_TIME_FIELDS,
+        [field],
+      ]);
+    }
   }
 
   selectDisplay(fields: string[]): void {

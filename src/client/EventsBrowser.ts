@@ -20,7 +20,7 @@ class EventsBrowser extends LitElementNoShadow {
   private selection?: PrimitiveFields = undefined;
 
   @state()
-  private events: ProgSnap2Event[] = [];
+  private events?: ProgSnap2Event[] = undefined;
 
   @state()
   private step = 0;
@@ -77,6 +77,7 @@ class EventsBrowser extends LitElementNoShadow {
   }
 
   protected async fetchEvents() {
+    this.events = undefined;
     const response = await window.fetch(`${this.apiUrl}ds/${this.ds}/select`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

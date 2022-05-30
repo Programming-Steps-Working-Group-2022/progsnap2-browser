@@ -1,6 +1,22 @@
 section {
   padding: 1em;
 }
+.error {
+  margin: 1em;
+  font-weight: bold;
+  color: darkred;
+}
+.loader {
+  margin: 1em;
+  animation: blinker 2s ease infinite;
+}
+@keyframes blinker {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Lists */
 ul.dataset-list {
   margin: 0;
   padding: 0;
