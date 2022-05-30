@@ -1,6 +1,7 @@
 import { html, TemplateResult } from 'lit';
-// eslint-disable-next-line import/extensions
+/* eslint-disable import/extensions */
 import { customElement, property, state } from 'lit/decorators.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import LitElementNoShadow from './LitElementNoShadow';
 import { Dataset } from '../types';
 import './styles.css';
@@ -56,7 +57,7 @@ class DatasetSelector extends LitElementNoShadow {
           ds => html`
             <li @click=${() => this.selectDataset(ds)}>
               <h2>${ds.id}</h2>
-              <p>${ds.description}</p>
+              <p>${unsafeHTML(ds.description)}</p>
             </li>
           `,
         )}
