@@ -1,7 +1,7 @@
 import { EventIndex } from './eventindex';
 
 export const EVENT_ID_FIELDS = ['EventID'];
-export const EVENT_TIME_FIELDS = ['ServerTimestamp', 'ClientTimestamp'];
+export const EVENT_TIME_FIELDS = ['ClientTimestamp', 'ServerTimestamp'];
 
 export const EVENT_INDEX_FIELDS = [
   'CourseID',

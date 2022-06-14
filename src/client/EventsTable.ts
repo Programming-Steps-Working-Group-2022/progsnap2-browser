@@ -51,18 +51,23 @@ class EventsTable extends LitElementNoShadow {
             </tr>
           </thead>
           <tbody>
-            ${this.events.map(
-              (e, i) => html`
+            ${this.events.map((e, i) => {
+              const p = i > 0 ? this.events[i - 1] : undefined;
+              return html`
                 <tr class=${i === this.step ? 'current' : ''}>
                   ${this.fields.map(
                     f =>
                       html`<td>
-                        <event-field .event=${e} .field=${f}></event-field>
+                        <event-field
+                          .event=${e}
+                          .previous=${p}
+                          .field=${f}
+                        ></event-field>
                       </td>`,
                   )}
                 </tr>
-              `,
-            )}
+              `;
+            })}
           </tbody>
         </table>
       </div>

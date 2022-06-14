@@ -9,6 +9,9 @@ class EventField extends LitElementNoShadow {
   @property({ type: Object })
   event?: ProgSnap2Event = undefined;
 
+  @property({ type: Object })
+  previous?: ProgSnap2Event = undefined;
+
   @property({ type: String })
   field = '';
 
@@ -26,6 +29,19 @@ class EventField extends LitElementNoShadow {
           typeof val === 'number' &&
           ['ClientTimestamp', 'ServerTimestamp'].includes(this.field)
         ) {
+          if (this.previous) {
+            const p = this.previous[this.field];
+            if (typeof p === 'number') {
+              const d = (val - p) / 1000;
+              return html`${new Date(val).toLocaleString()} is
+              ${Math.floor(d / 60)
+                .toString()
+                .padStart(2, '0')}:${Math.round(d % 60)
+                .toString()
+                .padStart(2, '0')}
+              later`;
+            }
+          }
           return html`${new Date(val).toLocaleString()}`;
         }
         return html`<pre>${val}</pre>`;

@@ -50,6 +50,7 @@ class EventsPlayback extends LitElementNoShadow {
   render(): TemplateResult {
     const last = this.events.length - 1;
     const event = this.events[this.step];
+    const previous = this.step > 0 ? this.events[this.step - 1] : undefined;
     if (event === undefined) {
       return html`<p>Index out of bounds</p>`;
     }
@@ -92,6 +93,7 @@ class EventsPlayback extends LitElementNoShadow {
                   <td>
                     <event-field
                       .event=${event}
+                      .previous=${previous}
                       .field=${field}
                       .code=${true}
                     ></event-field>
