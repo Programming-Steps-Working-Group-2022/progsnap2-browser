@@ -2,12 +2,13 @@ import { html, TemplateResult } from 'lit';
 // eslint-disable-next-line import/extensions
 import { customElement, property, state } from 'lit/decorators.js';
 import LitElementNoShadow from './LitElementNoShadow';
-import { pickExistingFrom, collapseRows } from '../transform';
+import { pickExistingFrom, skipListed, collapseRows } from '../transform';
 import {
   ProgSnap2Event,
   FieldRule,
   EVENT_TIME_FIELDS,
   EVENT_ID_FIELDS,
+  EVENT_HIDE_FIELDS,
 } from '../types';
 
 @customElement('events-view')
@@ -35,7 +36,8 @@ class EventsView extends LitElementNoShadow {
       return html`<div>No events available</div>`;
     }
     const allFields = Object.keys(this.events[0]);
-    const fields = this.displayFields || allFields;
+    const fields =
+      this.displayFields || skipListed(allFields, EVENT_HIDE_FIELDS);
     const events = collapseRows(this.events, this.fieldRules);
 
     return html`
@@ -54,7 +56,7 @@ class EventsView extends LitElementNoShadow {
       ></field-rules>
       <field-filters
         .fields=${allFields}
-        .display=${this.displayFields}
+        .display=${fields}
         @select-display=${(e: CustomEvent) =>
           this.selectDisplay(e.detail.fields)}
       ></field-filters>

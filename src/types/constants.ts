@@ -10,7 +10,20 @@ export const EVENT_INDEX_FIELDS = [
   'AssignmentID',
   'ProblemID',
   'SubjectID',
+  'CodeStateSection',
 ];
+
+export const EVENT_HIDE_FIELDS = EVENT_INDEX_FIELDS.concat([
+  'ToolInstances',
+  'ServerTimestamp',
+  'SourceLocation',
+  'InsertText',
+  'DeleteText',
+  'X-Compilable',
+  'X-Metadata',
+  'TokenCount',
+  'TokenLengths',
+]);
 
 export const EMPTY_INDEX = (): EventIndex => ({
   fields: [],

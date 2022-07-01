@@ -26,6 +26,9 @@ export const pickExistingFrom = (all: string[], pick: string[][]): string[] =>
     })
     .filter((s): s is string => s !== undefined);
 
+export const skipListed = (all: string[], skip: string[]): string[] =>
+  all.filter(s => !skip.includes(s));
+
 export const looselyEqual = (v1: PrimitiveValues, v2: PrimitiveValues) =>
   v1 === v2 || v1?.toString().trim() === v2?.toString().trim();
 
