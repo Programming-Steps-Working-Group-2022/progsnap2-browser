@@ -13,15 +13,15 @@ class FieldRules extends LitElement {
   @property({ type: Array })
   rules: FieldRule[] = [];
 
+  @property({ type: Number })
+  rowCount = 0;
+
   render(): TemplateResult {
     const selectValue = (select: HTMLSelectElement): string =>
       select.options[select.selectedIndex].value;
     const numberValue = (input: HTMLInputElement): number =>
       parseFloat(input.value);
 
-    if (this.rules.length === 0) {
-      return html``;
-    }
     return html`
       <ul>
         ${this.rules.map(
@@ -69,6 +69,7 @@ class FieldRules extends LitElement {
             </li>
           `,
         )}
+        <li>Rows ${this.rowCount}</li>
       </ul>
     `;
   }

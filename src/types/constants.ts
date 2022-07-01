@@ -17,6 +17,7 @@ export const EVENT_HIDE_FIELDS = EVENT_INDEX_FIELDS.concat([
   'ToolInstances',
   'ServerTimestamp',
   'SourceLocation',
+  'SourceLocations',
   'InsertText',
   'DeleteText',
   'X-Compilable',

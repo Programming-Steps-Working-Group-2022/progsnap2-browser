@@ -139,6 +139,7 @@ class re extends class{constructor(e){}get _$AU(){return this._$AM._$AU}_$AT(e,t
       </div>
       <field-rules
         .rules=${this.fieldRules}
+        .rowCount=${n.length}
         @delete-rule=${e=>this.deleteFieldRule(e.detail.field)}
         @edit-rule=${e=>this.editFieldRule(e.detail.rule)}
       ></field-rules>
@@ -163,7 +164,7 @@ class re extends class{constructor(e){}get _$AU(){return this._$AM._$AU}_$AT(e,t
               @add-rule=${e=>this.addFieldRule(e.detail.field)}
             ></events-table>`}
       </div>
-    `}togglePlayback(){this.playbackMode=!this.playbackMode}addFieldRule(e){this.fieldRules.map((e=>e.field)).includes(e)||(this.fieldRules=[...this.fieldRules,{field:e,collapse:"none"}])}deleteFieldRule(e){this.fieldRules=this.fieldRules.filter((t=>t.field!==e))}editFieldRule(e){this.fieldRules=this.fieldRules.map((t=>t.field===e.field?e:t))}focusDisplay(e){var t;void 0!==this.events&&this.events.length>0&&(this.displayFields=(t=Object.keys(this.events[0]),[de,me,[e]].map((e=>{for(let a=0;a<e.length;a+=1)if(t.includes(e[a]))return e[a]})).filter((e=>void 0!==e))))}selectDisplay(e){this.displayFields=e}};e([te({type:Array})],Ce.prototype,"events",void 0),e([te({type:Number})],Ce.prototype,"step",void 0),e([ae()],Ce.prototype,"fieldRules",void 0),e([ae()],Ce.prototype,"displayFields",void 0),e([ae()],Ce.prototype,"playbackMode",void 0),Ce=e([J("events-view")],Ce);var he=Ce;let Re=class extends X{constructor(){super(...arguments),this.rules=[]}render(){return 0===this.rules.length?w``:w`
+    `}togglePlayback(){this.playbackMode=!this.playbackMode}addFieldRule(e){this.fieldRules.map((e=>e.field)).includes(e)||(this.fieldRules=[...this.fieldRules,{field:e,collapse:"none"}])}deleteFieldRule(e){this.fieldRules=this.fieldRules.filter((t=>t.field!==e))}editFieldRule(e){this.fieldRules=this.fieldRules.map((t=>t.field===e.field?e:t))}focusDisplay(e){var t;void 0!==this.events&&this.events.length>0&&(this.displayFields=(t=Object.keys(this.events[0]),[de,me,[e]].map((e=>{for(let a=0;a<e.length;a+=1)if(t.includes(e[a]))return e[a]})).filter((e=>void 0!==e))))}selectDisplay(e){this.displayFields=e}};e([te({type:Array})],Ce.prototype,"events",void 0),e([te({type:Number})],Ce.prototype,"step",void 0),e([ae()],Ce.prototype,"fieldRules",void 0),e([ae()],Ce.prototype,"displayFields",void 0),e([ae()],Ce.prototype,"playbackMode",void 0),Ce=e([J("events-view")],Ce);var he=Ce;let Re=class extends X{constructor(){super(...arguments),this.rules=[],this.rowCount=0}render(){return w`
       <ul>
         ${this.rules.map((e=>w`
             <li>
@@ -191,6 +192,7 @@ class re extends class{constructor(e){}get _$AU(){return this._$AM._$AU}_$AT(e,t
                     seconds`:w``}
             </li>
           `))}
+        <li>Rows ${this.rowCount}</li>
       </ul>
     `}deleteRule(e){this.dispatchEvent(new CustomEvent("delete-rule",{detail:{field:e}}))}editRule(e){this.dispatchEvent(new CustomEvent("edit-rule",{detail:{rule:e}}))}};Re.styles=r`
     ul {
@@ -202,7 +204,7 @@ class re extends class{constructor(e){}get _$AU(){return this._$AM._$AU}_$AT(e,t
     ul li {
       margin-bottom: 5px;
     }
-  `,e([te({type:Array})],Re.prototype,"rules",void 0),Re=e([J("field-rules")],Re);var Ne=Re;let Oe=class extends X{constructor(){super(...arguments),this.fields=void 0,this.display=void 0}render(){return void 0===this.fields||void 0===this.display?w``:w`
+  `,e([te({type:Array})],Re.prototype,"rules",void 0),e([te({type:Number})],Re.prototype,"rowCount",void 0),Re=e([J("field-rules")],Re);var Ne=Re;let Oe=class extends X{constructor(){super(...arguments),this.fields=void 0,this.display=void 0}render(){return void 0===this.fields||void 0===this.display?w``:w`
       <ul>
         <li>
           <button @click=${()=>this.updateDisplay(void 0)}>
