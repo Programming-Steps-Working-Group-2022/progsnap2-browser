@@ -92,10 +92,12 @@ const checkObject = (
 ): PrimitiveFields => ({
   ...row,
   ...Object.fromEntries(
-    fields.map(props => [
-      props.name,
-      checkField(props.name, row[props.name], props),
-    ]),
+    fields
+      .map(props => [
+        props.name,
+        checkField(props.name, row[props.name], props),
+      ])
+      .filter((n, v) => v !== undefined),
   ),
 });
 
