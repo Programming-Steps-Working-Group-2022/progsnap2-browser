@@ -28,5 +28,5 @@ export const diffSpans = (val: PrimitiveValues, dif: PrimitiveValues): string =>
     val,
     dif,
     s => `<span class="add">${s}</span>`,
-    () => '<span class="rm"> </span>',
+    () => '<span class="rm"></span>',
   );

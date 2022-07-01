@@ -20,6 +20,7 @@ section {
 }
 .rm {
   background-color: red;
+  padding-right: 0.2em;
 }
 
 /* Lists */
