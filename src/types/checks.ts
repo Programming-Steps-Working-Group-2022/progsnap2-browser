@@ -70,7 +70,7 @@ const checkField = (
           }
           return undefined;
         }
-        return value?.toString();
+        return value !== undefined ? value.toString() : undefined;
     }
   }
   if (opt.default !== undefined) {
