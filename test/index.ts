@@ -6,6 +6,7 @@ import { readMainTable } from '../src/server/csvreader';
 import {
   buildEventIndex,
   collapseRows,
+  diffSpans,
   filterEvents,
   indexToOptions,
   iterateIndex,
@@ -129,3 +130,16 @@ rules('should combibe rules correctly', () => {
 });
 
 rules.run();
+
+// ---
+
+const helpers = suite('helpers');
+
+helpers('should create correct diff', () => {
+  assert.equal(
+    diffSpans('Yesterday', 'Thursday'),
+    '<span class="rm"></span><span class="add">Yeste</span>r<span class="rm"></span>day',
+  );
+});
+
+helpers.run();

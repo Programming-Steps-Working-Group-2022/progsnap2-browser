@@ -15,6 +15,12 @@ section {
     opacity: 0.5;
   }
 }
+.add {
+  background-color: lightyellow;
+}
+.rm {
+  background-color: red;
+}
 
 /* Lists */
 ul.dataset-list {

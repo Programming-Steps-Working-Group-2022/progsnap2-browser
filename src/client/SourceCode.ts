@@ -1,5 +1,4 @@
 import { html, TemplateResult } from 'lit';
-/* eslint-disable import/extensions */
 import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import hljs from 'highlight.js';
@@ -12,12 +11,13 @@ class SourceCode extends LitElementNoShadow {
   @property({ type: String })
   src: PrimitiveValues = undefined;
 
+  @property({ type: String })
+  diff: PrimitiveValues = undefined;
+
   render(): TemplateResult {
-    return html`
-      <pre><code class="hljs">${unsafeHTML(
-        hljs.highlightAuto(this.src?.toString() || '').value,
-      )}</code></pre>
-    `;
+    // TODO support diff
+    const code = hljs.highlightAuto(this.src?.toString() || '').value;
+    return html`<pre><code class="hljs">${unsafeHTML(code)}</code></pre>`;
   }
 }
 

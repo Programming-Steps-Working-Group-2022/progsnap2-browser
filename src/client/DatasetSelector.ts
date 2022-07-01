@@ -1,5 +1,4 @@
 import { html, TemplateResult } from 'lit';
-/* eslint-disable import/extensions */
 import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import LitElementNoShadow from './LitElementNoShadow';

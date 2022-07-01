@@ -1,5 +1,4 @@
 import { html, PropertyValueMap, TemplateResult } from 'lit';
-// eslint-disable-next-line import/extensions
 import { customElement, property } from 'lit/decorators.js';
 import LitElementNoShadow from './LitElementNoShadow';
 import { ProgSnap2Event } from '../types';
