@@ -1,5 +1,17 @@
 import { EventIndex, EventIndexOptions, PrimitiveFields } from '../src/types';
 
+export const CHECK_KEYS = [
+  'EventID',
+  'ToolInstances',
+  'ServerTimestamp',
+  'SubjectID',
+  'AssignmentID',
+  'EventType',
+  'CodeStateID',
+  'Score',
+  'X-FooBar',
+];
+
 export const CHECK_INDEX: EventIndex = {
   fields: ['AssignmentID', 'SubjectID'],
   levels: [

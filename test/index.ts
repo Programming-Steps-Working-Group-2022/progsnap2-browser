@@ -1,7 +1,7 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { CHECK_INDEX, TEST_INDEX, TEST_ITERATION, TEST_OPTIONS } from './fixtures';
-import { ProgSnap2Event } from '../src/types';
+import { CHECK_INDEX, CHECK_KEYS, TEST_INDEX, TEST_ITERATION, TEST_OPTIONS } from './fixtures';
+import { checkProgsnap2Event, ProgSnap2Event } from '../src/types';
 import { readMainTable } from '../src/server/csvreader';
 import {
   buildEventIndex,
@@ -14,26 +14,28 @@ import {
 
 // ---
 
-const data = suite('data');
+const eventsSuite = suite('events');
 let events: ProgSnap2Event[];
 
-data.before(async () => {
+eventsSuite.before(async () => {
   events = await readMainTable('test/test_data.csv', true);
 });
 
-data('should read complete main table', () => assert.equal(events.length, 7));
+eventsSuite('should read complete main table', () => assert.equal(events.length, 7));
 
-data('should parse dates correctly', () =>
+//eventsSuite('should not add extra columns', () => assert.equal(Object.keys(events[0]), CHECK_KEYS));
+
+eventsSuite('should parse dates correctly', () =>
   assert.ok(
     events.every(e => new Date(e.ServerTimestamp || 0).getFullYear() === 2022),
   ),
 );
 
-data('should calculate complete table index', () =>
+eventsSuite('should calculate complete table index', () =>
   assert.equal(buildEventIndex(events), CHECK_INDEX),
 );
 
-data('should filter subject data from table', () => {
+eventsSuite('should filter subject data from table', () => {
   const subset1 = filterEvents(events, {
     SubjectID: 'S01',
     AssignmentID: 'A02',
@@ -51,7 +53,7 @@ data('should filter subject data from table', () => {
   assert.equal(subset2.length, 1);
 });
 
-data('should generate default index options', () => {
+eventsSuite('should generate default index options', () => {
   const options = indexToOptions(TEST_INDEX, {});
   assert.equal(
     options.map(o => o.selected),
@@ -59,28 +61,28 @@ data('should generate default index options', () => {
   );
 });
 
-data('should present index options for a selection', () => {
+eventsSuite('should present index options for a selection', () => {
   const options = indexToOptions(TEST_INDEX, { A: 1, B: 'aa' });
   assert.equal(options, TEST_OPTIONS);
 });
 
-data('should iterate over index', () => {
+eventsSuite('should iterate over index', () => {
   const all = iterateIndex(TEST_INDEX);
   assert.equal(all, TEST_ITERATION);
 });
 
-data.run();
+eventsSuite.run();
 
 // ---
 
-const rules = suite('rules');
+const rulesSuite = suite('rules');
 let all: ProgSnap2Event[];
 
-rules.before(async () => {
+rulesSuite.before(async () => {
   all = await readMainTable('test/test_data.csv', true);
 });
 
-rules('should collapse empty rows', () => {
+rulesSuite('should collapse empty rows', () => {
   const pass = collapseRows(all, [{ field: 'X-FooBar', collapse: 'empty' }]);
   assert.equal(
     pass.map(e => e.EventID),
@@ -88,7 +90,7 @@ rules('should collapse empty rows', () => {
   );
 });
 
-rules('should collapse unchanged rows', () => {
+rulesSuite('should collapse unchanged rows', () => {
   const pass = collapseRows(all, [
     { field: 'X-FooBar', collapse: 'unchanged' },
   ]);
@@ -98,7 +100,7 @@ rules('should collapse unchanged rows', () => {
   );
 });
 
-rules('should collapse empty or unchanged rows', () => {
+rulesSuite('should collapse empty or unchanged rows', () => {
   const pass = collapseRows(all, [
     { field: 'X-FooBar', collapse: 'empty_or_unchanged' },
   ]);
@@ -108,7 +110,7 @@ rules('should collapse empty or unchanged rows', () => {
   );
 });
 
-rules('should collapse rows by latency threshold', () => {
+rulesSuite('should collapse rows by latency threshold', () => {
   const pass = collapseRows(all, [
     { field: 'ServerTimestamp', collapse: 'time', latency: 10 },
   ]);
@@ -118,7 +120,7 @@ rules('should collapse rows by latency threshold', () => {
   );
 });
 
-rules('should combibe rules correctly', () => {
+rulesSuite('should combibe rules correctly', () => {
   const pass = collapseRows(all, [
     { field: 'ServerTimestamp', collapse: 'time', latency: 10 },
     { field: 'X-FooBar', collapse: 'empty_or_unchanged' },
@@ -129,17 +131,33 @@ rules('should combibe rules correctly', () => {
   );
 });
 
-rules.run();
+rulesSuite.run();
 
 // ---
 
-const helpers = suite('helpers');
+const miscSuite = suite('misc');
 
-helpers('should create correct diff', () => {
+miscSuite('should check events without unnecessary additions', () =>
+  assert.equal(
+    checkProgsnap2Event({
+      EventID: '1',
+      SubjectID: 's01',
+      EventType: 'X-Test',
+    }),
+    {
+      EventID: '1',
+      SubjectID: 's01',
+      EventType: 'X-Test',
+      ToolInstances: '-',
+      CodeStateID: '-',
+    }
+  ));
+
+miscSuite('should create correct diff', () =>
   assert.equal(
     diffSpans('Yesterday', 'Thursday'),
     '<span class="rm"></span><span class="add">Yeste</span>r<span class="rm"></span>day',
-  );
-});
+  )
+);
 
-helpers.run();
+miscSuite.run();

@@ -97,7 +97,7 @@ const checkObject = (
         props.name,
         checkField(props.name, row[props.name], props),
       ])
-      .filter((n, v) => v !== undefined),
+      .filter(([, v]) => v !== undefined),
   ),
 });
 
