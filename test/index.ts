@@ -23,7 +23,7 @@ eventsSuite.before(async () => {
 
 eventsSuite('should read complete main table', () => assert.equal(events.length, 7));
 
-//eventsSuite('should not add extra columns', () => assert.equal(Object.keys(events[0]), CHECK_KEYS));
+eventsSuite('should not add extra columns', () => assert.equal(Object.keys(events[0]), CHECK_KEYS));
 
 eventsSuite('should parse dates correctly', () =>
   assert.ok(
