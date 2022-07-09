@@ -17,6 +17,9 @@ class EventsTable extends LitElementNoShadow {
   @property({ type: Number })
   step = 0;
 
+  @property({ type: Boolean })
+  copy = false;
+
   render(): TemplateResult {
     return html`
       <div class="table-wrap">
@@ -35,15 +38,23 @@ class EventsTable extends LitElementNoShadow {
                         )}
                       >${field}</strong
                     >
-                    <button
-                      class=${this.ruleFields.includes(field) ? 'active' : ''}
-                      @click=${() =>
-                        this.dispatchEvent(
-                          new CustomEvent('add-rule', { detail: { field } }),
-                        )}
-                    >
-                      ⚙
-                    </button>
+                    ${this.copy
+                      ? ''
+                      : html`
+                          <button
+                            class=${this.ruleFields.includes(field)
+                              ? 'active'
+                              : ''}
+                            @click=${() =>
+                              this.dispatchEvent(
+                                new CustomEvent('add-rule', {
+                                  detail: { field },
+                                }),
+                              )}
+                          >
+                            ⚙
+                          </button>
+                        `}
                   </th>
                 `,
               )}
@@ -53,7 +64,7 @@ class EventsTable extends LitElementNoShadow {
             ${this.events.map((e, i) => {
               const p = i > 0 ? this.events[i - 1] : undefined;
               return html`
-                <tr class=${i === this.step ? 'current' : ''}>
+                <tr class=${!this.copy && i === this.step ? 'current' : ''}>
                   ${this.fields.map(
                     f =>
                       html`<td>

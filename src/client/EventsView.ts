@@ -11,6 +11,8 @@ import {
   FieldRule,
   EVENT_TIME_FIELDS,
   EVENT_ID_FIELDS,
+  DisplayMode,
+  DISPLAY_MODES,
 } from '../types';
 
 @customElement('events-view')
@@ -28,7 +30,7 @@ class EventsView extends LitElementNoShadow {
   private displayFields?: string[] = undefined;
 
   @state()
-  private playbackMode = false;
+  private displayMode: DisplayMode = 'Table';
 
   render(): TemplateResult {
     if (this.events === undefined) {
@@ -43,12 +45,16 @@ class EventsView extends LitElementNoShadow {
 
     return html`
       <div class="playback-mode">
-        <button .disabled=${!this.playbackMode} @click=${this.togglePlayback}>
-          Table
-        </button>
-        <button .disabled=${this.playbackMode} @click=${this.togglePlayback}>
-          Play
-        </button>
+        ${DISPLAY_MODES.map(
+          mode => html`
+            <button
+              .disabled=${this.displayMode === mode}
+              @click=${() => this.selectMode(mode)}
+            >
+              ${mode}
+            </button>
+          `,
+        )}
       </div>
       <field-rules
         .rules=${this.fieldRules}
@@ -63,7 +69,7 @@ class EventsView extends LitElementNoShadow {
           this.selectDisplay(e.detail.fields)}
       ></field-filters>
       <div class="events-view">
-        ${this.playbackMode
+        ${this.displayMode === 'Play'
           ? html`<events-playback
               .fields=${fields}
               .ruleFields=${this.fieldRules.map(r => r.field)}
@@ -76,6 +82,7 @@ class EventsView extends LitElementNoShadow {
               .ruleFields=${this.fieldRules.map(r => r.field)}
               .events=${events}
               .step=${this.step}
+              .copy=${this.displayMode === 'Copy'}
               @focus-display=${(e: CustomEvent) =>
                 this.focusDisplay(e.detail.field)}
               @add-rule=${(e: CustomEvent) => this.addFieldRule(e.detail.field)}
@@ -84,8 +91,17 @@ class EventsView extends LitElementNoShadow {
     `;
   }
 
-  togglePlayback(): void {
-    this.playbackMode = !this.playbackMode;
+  selectMode(mode: DisplayMode): void {
+    this.displayMode = mode;
+    const selection = window.getSelection();
+    const node = document.querySelector('.events-view');
+    selection?.removeAllRanges();
+    if (selection && mode === 'Copy' && node) {
+      const range = document.createRange();
+      range.selectNode(node);
+      selection.addRange(range);
+      setTimeout(() => document.execCommand('copy'), 500);
+    }
   }
 
   addFieldRule(field: string): void {

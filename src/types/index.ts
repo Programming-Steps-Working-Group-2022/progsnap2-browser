@@ -11,6 +11,8 @@ export interface Dataset {
   description: string;
 }
 
+export type DisplayMode = 'Copy' | 'Table' | 'Play';
+
 export interface FieldRule {
   field: string;
   collapse: string;

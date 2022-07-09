@@ -1,3 +1,4 @@
+import { DisplayMode } from '.';
 import { EventIndex } from './eventindex';
 
 export const EVENT_ID_FIELDS = ['EventID'];
@@ -30,6 +31,8 @@ export const EMPTY_INDEX = (): EventIndex => ({
   fields: [],
   levels: [],
 });
+
+export const DISPLAY_MODES: DisplayMode[] = ['Copy', 'Table', 'Play'];
 
 export const RULE_COLLAPSE_MODES = [
   { id: 'none', label: 'No rule' },
