@@ -58,6 +58,7 @@ class EventsView extends LitElementNoShadow {
       </div>
       <field-rules
         .rules=${this.fieldRules}
+        .rowStep=${this.step}
         .rowCount=${events.length}
         @delete-rule=${(e: CustomEvent) => this.deleteFieldRule(e.detail.field)}
         @edit-rule=${(e: CustomEvent) => this.editFieldRule(e.detail.rule)}

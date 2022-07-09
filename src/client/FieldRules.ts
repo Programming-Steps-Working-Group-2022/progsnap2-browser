@@ -13,6 +13,9 @@ class FieldRules extends LitElement {
   rules: FieldRule[] = [];
 
   @property({ type: Number })
+  rowStep = 0;
+
+  @property({ type: Number })
   rowCount = 0;
 
   render(): TemplateResult {
@@ -68,7 +71,7 @@ class FieldRules extends LitElement {
             </li>
           `,
         )}
-        <li>Rows ${this.rowCount}</li>
+        <li>Row ${this.rowStep + 1} / ${this.rowCount}</li>
       </ul>
     `;
   }

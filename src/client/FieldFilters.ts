@@ -17,7 +17,7 @@ class FieldFilters extends LitElement {
       <ul>
         <li>
           <button @click=${() => this.updateDisplay(undefined)}>
-            Show all
+            Show default
           </button>
         </li>
         ${this.fields.map(

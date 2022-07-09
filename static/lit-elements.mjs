@@ -141,6 +141,7 @@ class re extends class{constructor(e){}get _$AU(){return this._$AM._$AU}_$AT(e,t
       </div>
       <field-rules
         .rules=${this.fieldRules}
+        .rowStep=${this.step}
         .rowCount=${a.length}
         @delete-rule=${e=>this.deleteFieldRule(e.detail.field)}
         @edit-rule=${e=>this.editFieldRule(e.detail.rule)}
@@ -167,7 +168,7 @@ class re extends class{constructor(e){}get _$AU(){return this._$AM._$AU}_$AT(e,t
               @add-rule=${e=>this.addFieldRule(e.detail.field)}
             ></events-table>`}
       </div>
-    `}selectMode(e){this.displayMode=e;const t=window.getSelection(),a=document.querySelector(".events-view");if(t?.removeAllRanges(),t&&"Copy"===e&&a){const e=document.createRange();e.selectNode(a),t.addRange(e),setTimeout((()=>document.execCommand("copy")),500)}}addFieldRule(e){this.fieldRules.map((e=>e.field)).includes(e)||(this.fieldRules=[...this.fieldRules,{field:e,collapse:"none"}])}deleteFieldRule(e){this.fieldRules=this.fieldRules.filter((t=>t.field!==e))}editFieldRule(e){this.fieldRules=this.fieldRules.map((t=>t.field===e.field?e:t))}focusDisplay(e){var t;void 0!==this.events&&this.events.length>0&&(this.displayFields=(t=Object.keys(this.events[0]),[pe,ue,[e]].map((e=>{for(let a=0;a<e.length;a+=1)if(t.includes(e[a]))return e[a]})).filter((e=>void 0!==e))))}selectDisplay(e){this.displayFields=e}};e([te({type:Array})],Ue.prototype,"events",void 0),e([te({type:Number})],Ue.prototype,"step",void 0),e([ae()],Ue.prototype,"fieldRules",void 0),e([ae()],Ue.prototype,"displayFields",void 0),e([ae()],Ue.prototype,"displayMode",void 0),Ue=e([J("events-view")],Ue);var Fe=Ue;let Be=class extends X{constructor(){super(...arguments),this.rules=[],this.rowCount=0}render(){return w`
+    `}selectMode(e){this.displayMode=e;const t=window.getSelection(),a=document.querySelector(".events-view");if(t?.removeAllRanges(),t&&"Copy"===e&&a){const e=document.createRange();e.selectNode(a),t.addRange(e),setTimeout((()=>document.execCommand("copy")),500)}}addFieldRule(e){this.fieldRules.map((e=>e.field)).includes(e)||(this.fieldRules=[...this.fieldRules,{field:e,collapse:"none"}])}deleteFieldRule(e){this.fieldRules=this.fieldRules.filter((t=>t.field!==e))}editFieldRule(e){this.fieldRules=this.fieldRules.map((t=>t.field===e.field?e:t))}focusDisplay(e){var t;void 0!==this.events&&this.events.length>0&&(this.displayFields=(t=Object.keys(this.events[0]),[pe,ue,[e]].map((e=>{for(let a=0;a<e.length;a+=1)if(t.includes(e[a]))return e[a]})).filter((e=>void 0!==e))))}selectDisplay(e){this.displayFields=e}};e([te({type:Array})],Ue.prototype,"events",void 0),e([te({type:Number})],Ue.prototype,"step",void 0),e([ae()],Ue.prototype,"fieldRules",void 0),e([ae()],Ue.prototype,"displayFields",void 0),e([ae()],Ue.prototype,"displayMode",void 0),Ue=e([J("events-view")],Ue);var Fe=Ue;let Be=class extends X{constructor(){super(...arguments),this.rules=[],this.rowStep=0,this.rowCount=0}render(){return w`
       <ul>
         ${this.rules.map((e=>w`
             <li>
@@ -195,7 +196,7 @@ class re extends class{constructor(e){}get _$AU(){return this._$AM._$AU}_$AT(e,t
                     seconds`:w``}
             </li>
           `))}
-        <li>Rows ${this.rowCount}</li>
+        <li>Row ${this.rowStep+1} / ${this.rowCount}</li>
       </ul>
     `}deleteRule(e){this.dispatchEvent(new CustomEvent("delete-rule",{detail:{field:e}}))}editRule(e){this.dispatchEvent(new CustomEvent("edit-rule",{detail:{rule:e}}))}};Be.styles=r`
     ul {
@@ -207,7 +208,7 @@ class re extends class{constructor(e){}get _$AU(){return this._$AM._$AU}_$AT(e,t
     ul li {
       margin-bottom: 5px;
     }
-  `,e([te({type:Array})],Be.prototype,"rules",void 0),e([te({type:Number})],Be.prototype,"rowCount",void 0),Be=e([J("field-rules")],Be);var Ge=Be;let Ye=class extends X{constructor(){super(...arguments),this.fields=void 0,this.display=void 0}render(){return void 0===this.fields||void 0===this.display?w``:w`
+  `,e([te({type:Array})],Be.prototype,"rules",void 0),e([te({type:Number})],Be.prototype,"rowStep",void 0),e([te({type:Number})],Be.prototype,"rowCount",void 0),Be=e([J("field-rules")],Be);var Ge=Be;let Ye=class extends X{constructor(){super(...arguments),this.fields=void 0,this.display=void 0}render(){return void 0===this.fields||void 0===this.display?w``:w`
       <ul>
         <li>
           <button @click=${()=>this.updateDisplay(void 0)}>
