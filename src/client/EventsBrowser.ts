@@ -24,6 +24,12 @@ class EventsBrowser extends LitElementNoShadow {
   @state()
   private step = 0;
 
+  @state()
+  private insertFields: string[] = [];
+
+  @state()
+  private inserted: { [id: string]: PrimitiveFields } = {};
+
   async connectedCallback(): Promise<void> {
     super.connectedCallback();
     this.fetchIndex();
@@ -45,8 +51,15 @@ class EventsBrowser extends LitElementNoShadow {
       <events-view
         .events=${this.events}
         .step=${this.step}
+        .insertFields=${this.insertFields}
+        .inserted=${this.inserted}
         @set-step=${(e: CustomEvent) => {
           this.step = e.detail.step;
+        }}
+        @create-insert-field=${(e: CustomEvent) =>
+          this.createInsertField(e.detail.field)}
+        @insert-value=${(e: CustomEvent) => {
+          this.insertValue(e.detail.id, e.detail.field, e.detail.value);
         }}
       ></events-view>
     `;
@@ -84,6 +97,21 @@ class EventsBrowser extends LitElementNoShadow {
     });
     this.events = await response.json();
     this.step = 0;
+  }
+
+  createInsertField(field: string): void {
+    this.insertFields = this.insertFields.concat(field);
+  }
+
+  insertValue(id: string, field: string, value: string) {
+    const vals = {
+      ...(this.inserted[id] || {}),
+      ...Object.fromEntries([[field, value]]),
+    };
+    this.inserted = {
+      ...this.inserted,
+      ...Object.fromEntries([[id, vals]]),
+    };
   }
 }
 

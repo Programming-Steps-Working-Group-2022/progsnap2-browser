@@ -13,6 +13,7 @@ import {
   EVENT_ID_FIELDS,
   DisplayMode,
   DISPLAY_MODES,
+  PrimitiveFields,
 } from '../types';
 
 @customElement('events-view')
@@ -22,6 +23,12 @@ class EventsView extends LitElementNoShadow {
 
   @property({ type: Number })
   step = 0;
+
+  @property({ type: Array })
+  insertFields: string[] = [];
+
+  @property({ type: Object })
+  inserted: { [id: string]: PrimitiveFields } = {};
 
   @state()
   private fieldRules: FieldRule[] = [];
@@ -65,6 +72,7 @@ class EventsView extends LitElementNoShadow {
       ></field-rules>
       <field-filters
         .fields=${allFields}
+        .insertFields=${this.insertFields}
         .display=${fields}
         @select-display=${(e: CustomEvent) =>
           this.selectDisplay(e.detail.fields)}
@@ -81,8 +89,10 @@ class EventsView extends LitElementNoShadow {
           : html`<events-table
               .fields=${fields}
               .ruleFields=${this.fieldRules.map(r => r.field)}
+              .insertFields=${this.insertFields}
               .events=${events}
               .step=${this.step}
+              .inserted=${this.inserted}
               .copy=${this.displayMode === 'Copy'}
               @focus-display=${(e: CustomEvent) =>
                 this.focusDisplay(e.detail.field)}

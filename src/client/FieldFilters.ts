@@ -34,6 +34,10 @@ class FieldFilters extends LitElement {
             </li>
           `,
         )}
+        <li>
+          <input type="text" id="add-insert-field" value="" />
+          <button @click=${() => this.addInsertField()}>Add column</button>
+        </li>
       </ul>
     `;
   }
@@ -52,6 +56,21 @@ class FieldFilters extends LitElement {
     this.dispatchEvent(
       new CustomEvent('select-display', { detail: { fields } }),
     );
+  }
+
+  addInsertField(): void {
+    const input = this.shadowRoot?.getElementById(
+      'add-insert-field',
+    ) as HTMLInputElement;
+    if (input && input.value.trim() !== '') {
+      this.dispatchEvent(
+        new CustomEvent('create-insert-field', {
+          detail: { field: input.value.trim() },
+          bubbles: true,
+        }),
+      );
+      input.value = '';
+    }
   }
 
   static styles = css`

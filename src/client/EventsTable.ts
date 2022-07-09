@@ -1,7 +1,7 @@
 import { html, PropertyValueMap, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import LitElementNoShadow from './LitElementNoShadow';
-import { EVENT_TIME_FIELDS, ProgSnap2Event } from '../types';
+import { EVENT_TIME_FIELDS, PrimitiveFields, ProgSnap2Event } from '../types';
 import { intervalString } from '../transform';
 
 @customElement('events-table')
@@ -17,6 +17,12 @@ class EventsTable extends LitElementNoShadow {
 
   @property({ type: Number })
   step = 0;
+
+  @property({ type: Array })
+  insertFields: string[] = [];
+
+  @property({ type: Object })
+  inserted: { [id: string]: PrimitiveFields } = {};
 
   @property({ type: Boolean })
   copy = false;
@@ -62,6 +68,7 @@ class EventsTable extends LitElementNoShadow {
                     : ''}
                 `,
               )}
+              ${this.insertFields.map(f => html`<th>${f}</th>`)}
             </tr>
           </thead>
           <tbody>
@@ -86,6 +93,23 @@ ${intervalString(e[f], p !== undefined && p[f])}</pre
                             </td>`
                           : ''}`,
                   )}
+                  ${this.insertFields.map(f => {
+                    const v = (this.inserted[e.EventID] || {})[f];
+                    return this.copy
+                      ? html`<td><pre>${v}</pre></td>`
+                      : html`<td>
+                          <input
+                            type="text"
+                            .value=${v?.toString() || ''}
+                            @change=${(evt: Event) =>
+                              this.insertValue(
+                                e.EventID,
+                                f,
+                                (evt.target as HTMLInputElement).value,
+                              )}
+                          />
+                        </td>`;
+                  })}
                 </tr>
               `;
             })}
@@ -106,6 +130,16 @@ ${intervalString(e[f], p !== undefined && p[f])}</pre
         100,
       );
     }
+  }
+
+  insertValue(id: string, field: string, value: string): void {
+    console.log('insert');
+    this.dispatchEvent(
+      new CustomEvent('insert-value', {
+        detail: { id, field, value },
+        bubbles: true,
+      }),
+    );
   }
 }
 
