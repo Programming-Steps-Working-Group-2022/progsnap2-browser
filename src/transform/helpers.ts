@@ -40,3 +40,19 @@ export const latencyLessThan = (
   typeof timestamp1 === 'number' &&
   typeof timestamp2 === 'number' &&
   timestamp2 - timestamp1 < thresholdSeconds * 1000;
+
+const padToNN = (n: number) => n.toString().padStart(2, '0');
+
+export const intervalString = (
+  now: PrimitiveValues,
+  previous: PrimitiveValues,
+) => {
+  if (typeof now === 'number' && typeof previous === 'number') {
+    const d = (now - previous) / 1000;
+    if (d < 3600) {
+      return `${padToNN(Math.floor(d / 60))}:${padToNN(Math.round(d % 60))}`;
+    }
+    return `${(d / 3600).toFixed(1)} h`;
+  }
+  return '';
+};

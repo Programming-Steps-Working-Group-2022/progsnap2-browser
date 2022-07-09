@@ -1,7 +1,7 @@
 import { html, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { ProgSnap2Event } from '../types';
+import { EVENT_TIME_FIELDS, ProgSnap2Event } from '../types';
 import { diffSpans } from '../transform';
 import LitElementNoShadow from './LitElementNoShadow';
 
@@ -30,26 +30,8 @@ class EventField extends LitElementNoShadow {
           }
           return html`<pre>${unsafeHTML(diffSpans(val, p))}</pre>`;
         }
-        if (
-          typeof val === 'number' &&
-          ['ClientTimestamp', 'ServerTimestamp'].includes(this.field)
-        ) {
-          if (this.previous) {
-            const p = this.previous[this.field];
-            if (typeof p === 'number') {
-              const d = (val - p) / 1000;
-              if (d < 3600) {
-                return html`${new Date(val).toLocaleString()} is
-                ${Math.floor(d / 60)
-                  .toString()
-                  .padStart(2, '0')}:${Math.round(d % 60)
-                  .toString()
-                  .padStart(2, '0')}
-                later`;
-              }
-            }
-          }
-          return html`${new Date(val).toLocaleString()}`;
+        if (EVENT_TIME_FIELDS.includes(this.field) && typeof val === 'number') {
+          return html`<pre>${new Date(val).toLocaleString()}</pre>`;
         }
         return html`<pre>${val}</pre>`;
       }

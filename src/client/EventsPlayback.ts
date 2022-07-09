@@ -1,7 +1,8 @@
 import { html, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import LitElementNoShadow from './LitElementNoShadow';
-import { ProgSnap2Event } from '../types';
+import { EVENT_TIME_FIELDS, ProgSnap2Event } from '../types';
+import { intervalString } from '../transform';
 
 @customElement('events-playback')
 class EventsPlayback extends LitElementNoShadow {
@@ -77,18 +78,7 @@ class EventsPlayback extends LitElementNoShadow {
             ${this.fields.map(
               field => html`
                 <tr>
-                  <th>
-                    ${field}
-                    <button
-                      class=${this.ruleFields.includes(field) ? 'active' : ''}
-                      @click=${() =>
-                        this.dispatchEvent(
-                          new CustomEvent('add-rule', { detail: { field } }),
-                        )}
-                    >
-                      ⚙
-                    </button>
-                  </th>
+                  <th>${field}</th>
                   <td>
                     <event-field
                       .event=${event}
@@ -98,6 +88,18 @@ class EventsPlayback extends LitElementNoShadow {
                     ></event-field>
                   </td>
                 </tr>
+                ${EVENT_TIME_FIELDS.includes(field)
+                  ? html`
+                      <tr>
+                        <th>Delay</th>
+                        <td>
+                          <pre>
+${intervalString(event[field], previous && previous[field])}</pre
+                          >
+                        </td>
+                      </tr>
+                    `
+                  : ''}
               `,
             )}
           </tbody>

@@ -1,7 +1,8 @@
 import { html, PropertyValueMap, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import LitElementNoShadow from './LitElementNoShadow';
-import { ProgSnap2Event } from '../types';
+import { EVENT_TIME_FIELDS, ProgSnap2Event } from '../types';
+import { intervalString } from '../transform';
 
 @customElement('events-table')
 class EventsTable extends LitElementNoShadow {
@@ -56,6 +57,9 @@ class EventsTable extends LitElementNoShadow {
                           </button>
                         `}
                   </th>
+                  ${EVENT_TIME_FIELDS.includes(field)
+                    ? html`<th>Delay</th>`
+                    : ''}
                 `,
               )}
             </tr>
@@ -68,12 +72,19 @@ class EventsTable extends LitElementNoShadow {
                   ${this.fields.map(
                     f =>
                       html`<td>
-                        <event-field
-                          .event=${e}
-                          .previous=${p}
-                          .field=${f}
-                        ></event-field>
-                      </td>`,
+                          <event-field
+                            .event=${e}
+                            .previous=${p}
+                            .field=${f}
+                          ></event-field>
+                        </td>
+                        ${EVENT_TIME_FIELDS.includes(f)
+                          ? html`<td>
+                              <pre>
+${intervalString(e[f], p !== undefined && p[f])}</pre
+                              >
+                            </td>`
+                          : ''}`,
                   )}
                 </tr>
               `;
