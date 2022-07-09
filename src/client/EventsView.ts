@@ -1,13 +1,16 @@
 import { html, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import LitElementNoShadow from './LitElementNoShadow';
-import { pickExistingFrom, skipListed, collapseRows } from '../transform';
+import {
+  pickExistingFrom,
+  collapseRows,
+  defaultVisibleFields,
+} from '../transform';
 import {
   ProgSnap2Event,
   FieldRule,
   EVENT_TIME_FIELDS,
   EVENT_ID_FIELDS,
-  EVENT_HIDE_FIELDS,
 } from '../types';
 
 @customElement('events-view')
@@ -35,8 +38,7 @@ class EventsView extends LitElementNoShadow {
       return html`<div>No events available</div>`;
     }
     const allFields = Object.keys(this.events[0]);
-    const fields =
-      this.displayFields || skipListed(allFields, EVENT_HIDE_FIELDS);
+    const fields = this.displayFields || defaultVisibleFields(allFields);
     const events = collapseRows(this.events, this.fieldRules);
 
     return html`

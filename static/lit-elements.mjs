@@ -128,7 +128,7 @@ class re extends class{constructor(e){}get _$AU(){return this._$AM._$AU}_$AT(e,t
       display: inline;
       white-space: nowrap;
     }
-  `,e([te({type:Object})],we.prototype,"index",void 0),e([te({type:Object})],we.prototype,"selection",void 0),we=e([J("event-filters")],we);var xe=we;let Le=class extends oe{constructor(){super(...arguments),this.events=void 0,this.step=0,this.fieldRules=[],this.displayFields=void 0,this.playbackMode=!1}render(){if(void 0===this.events)return w`<div class="loader">Loading events...</div>`;if(0===this.events.length)return w`<div>No events available</div>`;const e=Object.keys(this.events[0]),t=this.displayFields||(a=pe,e.filter((e=>!a.includes(e))));var a;const n=((e,t)=>{const a=(e,t,a,n,i)=>{for(let t=0;t<e.length;t+=1)if(Ee(e[t],a,n,i))return!1;for(let e=0;e<t.length;e+=1)if(!Ee(t[e],a,n,i))return!0;return 0===t.length},n=t.filter((e=>"time"===e.collapse)),i=t.filter((e=>!["none","time"].includes(e.collapse))),r=[];for(let t=0;t<e.length;t+=1)a(n,i,t,e,r)&&r.push(e[t]);return r})(this.events,this.fieldRules);return w`
+  `,e([te({type:Object})],we.prototype,"index",void 0),e([te({type:Object})],we.prototype,"selection",void 0),we=e([J("event-filters")],we);var xe=we;let Le=class extends oe{constructor(){super(...arguments),this.events=void 0,this.step=0,this.fieldRules=[],this.displayFields=void 0,this.playbackMode=!1}render(){if(void 0===this.events)return w`<div class="loader">Loading events...</div>`;if(0===this.events.length)return w`<div>No events available</div>`;const e=Object.keys(this.events[0]),t=this.displayFields||(e=>{const t=(a=pe,e.filter((e=>!a.includes(e))));var a;return t.includes("X-CodeState")?t.filter((e=>"CodeStateID"!==e)):t})(e),a=((e,t)=>{const a=(e,t,a,n,i)=>{for(let t=0;t<e.length;t+=1)if(Ee(e[t],a,n,i))return!1;for(let e=0;e<t.length;e+=1)if(!Ee(t[e],a,n,i))return!0;return 0===t.length},n=t.filter((e=>"time"===e.collapse)),i=t.filter((e=>!["none","time"].includes(e.collapse))),r=[];for(let t=0;t<e.length;t+=1)a(n,i,t,e,r)&&r.push(e[t]);return r})(this.events,this.fieldRules);return w`
       <div class="playback-mode">
         <button .disabled=${!this.playbackMode} @click=${this.togglePlayback}>
           Table
@@ -139,7 +139,7 @@ class re extends class{constructor(e){}get _$AU(){return this._$AM._$AU}_$AT(e,t
       </div>
       <field-rules
         .rules=${this.fieldRules}
-        .rowCount=${n.length}
+        .rowCount=${a.length}
         @delete-rule=${e=>this.deleteFieldRule(e.detail.field)}
         @edit-rule=${e=>this.editFieldRule(e.detail.rule)}
       ></field-rules>
@@ -152,13 +152,13 @@ class re extends class{constructor(e){}get _$AU(){return this._$AM._$AU}_$AT(e,t
         ${this.playbackMode?w`<events-playback
               .fields=${t}
               .ruleFields=${this.fieldRules.map((e=>e.field))}
-              .events=${n}
+              .events=${a}
               .step=${this.step}
               @add-rule=${e=>this.addFieldRule(e.detail.field)}
             ></events-playback>`:w`<events-table
               .fields=${t}
               .ruleFields=${this.fieldRules.map((e=>e.field))}
-              .events=${n}
+              .events=${a}
               .step=${this.step}
               @focus-display=${e=>this.focusDisplay(e.detail.field)}
               @add-rule=${e=>this.addFieldRule(e.detail.field)}
