@@ -7,7 +7,7 @@ export const filterEvents = (
 ) => {
   const check = Object.entries(filters);
   return events.filter(event =>
-    check.every(([field, accept]) => event[field] === accept),
+    check.every(([field, accept]) => event[field] === undefined || event[field] === accept),
   );
 };
 

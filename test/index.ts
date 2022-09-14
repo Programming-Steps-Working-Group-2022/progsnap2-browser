@@ -21,7 +21,7 @@ eventsSuite.before(async () => {
   events = await readMainTable('test/test_data.csv', true);
 });
 
-eventsSuite('should read complete main table', () => assert.equal(events.length, 7));
+eventsSuite('should read complete main table', () => assert.equal(events.length, 8));
 
 eventsSuite('should not add extra columns', () => assert.equal(Object.keys(events[0]), CHECK_KEYS));
 
@@ -47,10 +47,11 @@ eventsSuite('should filter subject data from table', () => {
   const subset2 = filterEvents(events, {
     SubjectID: 'S02',
     AssignmentID: 'A01',
+    CodeStateSection: '-',
   });
   assert.ok(subset2.every(e => e.SubjectID === 'S02'));
   assert.ok(subset2.every(e => e.AssignmentID === 'A01'));
-  assert.equal(subset2.length, 1);
+  assert.equal(subset2.length, 2);
 });
 
 eventsSuite('should generate default index options', () => {
@@ -96,7 +97,7 @@ rulesSuite('should collapse unchanged rows', () => {
   ]);
   assert.equal(
     pass.map(e => e.EventID),
-    ['0', '3', '5', '6', '7'],
+    ['0', '3', '5', '6', '7', '8'],
   );
 });
 
@@ -116,7 +117,7 @@ rulesSuite('should collapse rows by latency threshold', () => {
   ]);
   assert.equal(
     pass.map(e => e.EventID),
-    ['0', '2', '4', '5', '6', '7'],
+    ['0', '2', '4', '5', '6', '7', '8'],
   );
 });
 

@@ -10,6 +10,7 @@ export const CHECK_KEYS = [
   'CodeStateID',
   'Score',
   'X-FooBar',
+  'EditType',
 ];
 
 export const CHECK_INDEX: EventIndex = {
